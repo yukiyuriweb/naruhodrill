@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>もんだい</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  #bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; flex-wrap: wrap; }
+  #bar .title { flex: 1; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pen.on { outline: 3px solid var(--accent); }
+  #sheet { margin: 0 auto; }
+  .panel {
+    position: fixed; left: 12px; bottom: 12px; width: min(560px, calc(100vw - 24px)); max-height: 50vh; overflow-y: auto;
+    background: var(--warm-soft); border: 2px solid var(--warm); border-radius: 14px; padding: 10px 16px 12px;
+    font-size: 18px; line-height: 1.7; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; z-index: 10;
+  }
+  .panel h3 { margin: 0 0 4px; font-size: 16px; display: flex; align-items: center; }
+  .panel h3 span { flex: 1; }
+  .panel ol { margin: 0; padding-left: 1.4em; }
+  .panel .close { border: 0; background: none; font-size: 22px; cursor: pointer; color: var(--muted); }
+  .panel .next { margin-top: 8px; }
+  #parentPanel { left: auto; right: 12px; border-color: var(--line); background: #fff; }
+  #banner { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); font-size: 26px; font-weight: bold; padding: 8px 24px; border-radius: 14px; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.15); display: none; z-index: 11; white-space: nowrap; }
+  #error { padding: 24px; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <a class="btn" href="./">もどる</a>
+  <span class="title" id="title"></span>
+  <button class="btn pen on" data-color="#222">くろ</button>
+  <button class="btn pen" data-color="#d22">あか</button>
+  <button class="btn" id="undo">ひとつ消す</button>
+  <button class="btn" id="hint">ヒント</button>
+  <button class="btn" id="reveal" hidden>こたえを見る</button>
+  <button class="btn" id="parent">おうちの方へ</button>
+  <button class="btn primary" id="check">こたえあわせ</button>
+</div>
+<div id="sheet"></div>
+<div class="panel" id="hintPanel"><h3><span>ヒント</span><button class="close">×</button></h3><ol id="hintList"></ol></div>
+<div class="panel" id="explPanel"><h3><span id="explTitle">かいせつ</span><button class="close">×</button></h3><div id="explAnswers"></div><ol id="explList"></ol><button class="btn next" id="explNext">つぎへ</button></div>
+<div class="panel" id="msgPanel"><h3><span>ひとこと</span><button class="close">×</button></h3><ul id="msgList" style="list-style:none;padding-left:0;margin:0"></ul></div>
+<div class="panel" id="parentPanel"><h3><span>おうちの方へ</span><button class="close">×</button></h3><div id="parentBody"></div></div>
+<div id="banner"></div>
+
+<script type="module">
+import { SITE_NAME, IS_LOCAL, richText, plainText, loadProblem, problemKey, grade, mistakeMessages } from "./js/common.js";
+import { renderSheet, fitWidth, attachPen, drawAll, answerText } from "./js/sheet.js";
+import * as db from "./js/db.js";
+
+const params = new URLSearchParams(location.search);
+const subject = params.get("s") || "math";
+const id = params.get("id");
+const key = problemKey(subject, id);
+const $ = (sel) => document.querySelector(sel);
+
+let problem, sheet, session, interval;
+let lastSubmitAt = null;
+let done = false;
+const strokes = [];
+let color = "#222";
+
+// ---- パネル ----
+const show = (el) => (el.style.display = "block");
+document.querySelectorAll(".panel .close").forEach((b) => (b.onclick = () => (b.closest(".panel").style.display = "none")));
+
+function banner(text, cls = "") {
+  const el = $("#banner");
+  el.textContent = text;
+  el.className = cls;
+  el.style.display = "block";
+  clearTimeout(banner.t);
+  banner.t = setTimeout(() => (el.style.display = "none"), 2500);
+}
+
+// ---- ヒント（時間がたつと 1 つずつ開けられる） ----
+function unlockedCount(now = Date.now()) {
+  return Math.min(problem.hints.length, Math.floor((now - Date.parse(session.openedAt)) / interval));
+}
+
+function mmss(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+function tick() {
+  if (done) return;
+  const now = Date.now();
+  const opened = session.hintsOpened.length;
+  const total = problem.hints.length;
+  const b = $("#hint");
+  if (opened >= total) {
+    b.textContent = "ヒント（ぜんぶ）";
+    b.disabled = false;
+  } else if (opened < unlockedCount(now)) {
+    b.textContent = `ヒント${opened + 1}を 見る`;
+    b.disabled = false;
+  } else {
+    const nextAt = Date.parse(session.openedAt) + (opened + 1) * interval;
+    b.textContent = `ヒント${opened + 1} あと ${mmss(nextAt - now)}`;
+    b.disabled = true;
+  }
+  // ヒントをぜんぶ見て、さらに 1 回分待ったら、こたえを見られる
+  const revealAt = Date.parse(session.openedAt) + (total + 1) * interval;
+  $("#reveal").hidden = !(opened >= total && now >= revealAt);
+}
+
+function renderHints() {
+  $("#hintList").innerHTML = problem.hints.slice(0, session.hintsOpened.length).map((h) => `<li>${richText(h)}</li>`).join("");
+}
+
+$("#hint").onclick = async () => {
+  const opened = session.hintsOpened.length;
+  if (opened < problem.hints.length && opened < unlockedCount()) {
+    session.hintsOpened.push({ n: opened + 1, at: new Date().toISOString() });
+    await db.putSession(session);
+  }
+  renderHints();
+  show($("#hintPanel"));
+  tick();
+};
+
+// ---- かいせつ（1 段ずつ開く） ----
+function showExplanation(title, withAnswers) {
+  $("#hintPanel").style.display = "none";
+  $("#msgPanel").style.display = "none";
+  $("#explTitle").textContent = title;
+  $("#explAnswers").innerHTML = withAnswers
+    ? `<p><b>こたえ</b>　${problem.parts.map((p) => `${richText(p.label)} ${richText(answerText(p))}`).join("　")}</p>` : "";
+  let n = 1;
+  const draw = () => {
+    $("#explList").innerHTML = problem.explanation.slice(0, n).map((t) => `<li>${richText(t)}</li>`).join("");
+    $("#explNext").hidden = n >= problem.explanation.length;
+  };
+  $("#explNext").onclick = () => { n++; draw(); };
+  draw();
+  show($("#explPanel"));
+}
+
+// ---- 記録 ----
+async function save(answers, marks, result) {
+  const now = new Date().toISOString();
+  await db.addAttempt({
+    key, subject, problemId: id, title: plainText(problem.title),
+    startedAt: lastSubmitAt || session.openedAt, submittedAt: now,
+    answers, marks, result, hints: session.hintsOpened.slice(), strokes: JSON.parse(JSON.stringify(strokes)),
+  });
+  lastSubmitAt = now;
+}
+
+function finish() {
+  done = true;
+  sheet.lock();
+  db.deleteSession(key); // 次に開いたときは、ヒントの待ち時間を最初から数える
+  $("#hint").disabled = true;
+  $("#reveal").hidden = true;
+  const b = $("#check");
+  b.textContent = "おわり";
+  b.onclick = () => (location.href = "./");
+}
+
+$("#check").onclick = async (ev) => {
+  const answers = sheet.getAnswers();
+  if (answers.some((a) => a === "")) return banner("こたえを ぜんぶ 入れてね");
+  const { result, marks } = grade(problem, answers);
+  await save(answers, marks, result);
+  const messages = mistakeMessages(problem, answers, marks);
+  sheet.setMarks(marks, messages);
+  // 読解（文章の長い問題）は紙に入りきらないので、ひとことはパネルに出す
+  if (problem.layout === "reading") {
+    $("#msgPanel").style.display = "none";
+    if (messages.length) {
+      $("#msgList").innerHTML = messages.map((m) => `<li>${richText(problem.parts[m.part].label)} ${richText(m.message)}</li>`).join("");
+      $("#hintPanel").style.display = "none";
+      show($("#msgPanel"));
+    }
+  }
+  if (result === "correct") {
+    banner("○ せいかい！", "mark-correct");
+    showExplanation("かいせつ", false);
+    finish();
+  } else if (result === "partial") {
+    banner("△ おしい！ ×のところを もういちど", "mark-partial");
+  } else {
+    banner("× ざんねん。もういちど 考えてみよう", "mark-wrong");
+  }
+};
+
+$("#reveal").onclick = async () => {
+  const answers = sheet.getAnswers();
+  const { marks } = grade(problem, answers);
+  await save(answers, marks, "revealed");
+  showExplanation("こたえと かいせつ", true);
+  finish();
+};
+
+$("#parent").onclick = () => {
+  $("#parentBody").innerHTML = (problem.parent_note || []).map((t) => `<p>${richText(t)}</p>`).join("")
+    + `<p class="muted">ヒントは ${problem.hint_interval_min} 分ごとに 1つずつ 開けます。</p>`;
+  show($("#parentPanel"));
+};
+
+// ---- ペン ----
+document.querySelectorAll(".pen").forEach((b) =>
+  b.addEventListener("click", () => {
+    color = b.dataset.color;
+    document.querySelectorAll(".pen").forEach((x) => x.classList.toggle("on", x === b));
+  })
+);
+$("#undo").onclick = () => { strokes.pop(); drawAll(sheet.ink, strokes); };
+
+// ---- はじめ ----
+async function setup() {
+  try {
+    problem = await loadProblem(subject, id);
+  } catch {
+    document.body.innerHTML = `<p id="error">もんだいが 見つかりません。<a href="./">もどる</a></p>`;
+    return;
+  }
+  document.title = `${plainText(problem.title)} - ${SITE_NAME}`;
+  $("#title").innerHTML = richText(`${Number(problem.id)}. ${problem.title}`);
+  // 開発中は ?fast=1 でヒントの間隔を 5 秒にする（動作確認用）
+  interval = IS_LOCAL && params.has("fast") ? 5000 : problem.hint_interval_min * 60000;
+
+  session = (await db.getSession(key)) || { key, openedAt: new Date().toISOString(), hintsOpened: [] };
+  await db.putSession(session);
+
+  const barH = $("#bar").offsetHeight;
+  sheet = renderSheet($("#sheet"), problem, { width: fitWidth(window.innerWidth - 16, window.innerHeight - barH - 16, problem), editable: true });
+  attachPen(sheet.ink, strokes, () => color);
+  tick();
+  setInterval(tick, 1000);
+}
+setup();
+</script>
+</body>
+</html>

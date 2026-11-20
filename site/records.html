@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>きろく - なるほドリル</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+  @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+  ul.list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--card); max-height: 70vh; overflow-y: auto; }
+  ul.list li { padding: 10px 12px; border-bottom: 1px solid var(--line); cursor: pointer; display: flex; gap: 10px; align-items: center; }
+  ul.list li:last-child { border-bottom: 0; }
+  ul.list li.sel { background: var(--accent-soft); }
+  ul.list .m { font-weight: bold; font-size: 22px; width: 1.2em; text-align: center; }
+  ul.list .t { flex: 1; line-height: 1.4; }
+  ul.list .when { color: var(--muted); font-size: 13px; }
+  .head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
+  .big { font-size: 56px; font-weight: bold; line-height: 1; }
+  .head h2 { margin: 0; font-size: 20px; }
+  .meta { color: var(--muted); font-size: 14px; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 12px; }
+  .del.armed { background: var(--ng); border-color: var(--ng); color: #fff; }
+  #status { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <h1><a href="./" id="siteName"></a></h1>
+    <a class="btn" href="./">もんだい</a>
+  </div>
+  <div class="tools">
+    <button class="btn" id="export">記録をファイルに書き出す</button>
+    <label class="btn">ファイルから読み込む<input type="file" id="import" accept="application/json,.json" hidden></label>
+    <span id="status"></span>
+  </div>
+  <p class="meta">記録はこの端末のブラウザにだけ保存されています。iPad の Safari では、7日間ひらかないと消えることがあります（ホーム画面に追加して使うと消えません）。ときどき書き出しておくと安心です。</p>
+  <div class="layout">
+    <ul class="list" id="list"></ul>
+    <div id="detail"><p class="muted">左の一覧から えらんでね。</p></div>
+  </div>
+</div>
+<script type="module">
+import { SITE_NAME, SUBJECTS, RESULT_MARK, RESULT_WORD, richText, fmt, loadProblem, problemUrl } from "./js/common.js";
+import { renderSheet, drawAll } from "./js/sheet.js";
+import * as db from "./js/db.js";
+
+document.getElementById("siteName").textContent = SITE_NAME;
+let attempts = [];
+
+function renderList(selId) {
+  const ul = document.getElementById("list");
+  ul.innerHTML = attempts.length ? "" : `<li class="muted">まだ 記録が ないよ</li>`;
+  for (const a of attempts) {
+    const li = document.createElement("li");
+    li.className = a.id === selId ? "sel" : "";
+    li.innerHTML = `<span class="m mark-${a.result}">${RESULT_MARK[a.result]}</span>
+      <span class="t"><span class="name"></span><br><span class="when">${fmt(a.submittedAt)}</span></span>`;
+    li.querySelector(".name").textContent = `${SUBJECTS[a.subject]} ${Number(a.problemId)}. ${a.title}`;
+    li.onclick = () => show(a.id);
+    ul.appendChild(li);
+  }
+}
+
+function minutes(a) {
+  const ms = Date.parse(a.submittedAt) - Date.parse(a.startedAt);
+  return ms > 0 ? `${Math.max(1, Math.round(ms / 60000))}分` : "";
+}
+
+async function show(id) {
+  renderList(id);
+  const a = await db.getAttempt(id);
+  const latest = attempts.find((x) => x.key === a.key);
+  const el = document.getElementById("detail");
+  el.innerHTML = `
+    <div class="head">
+      <span class="big mark-${a.result}">${RESULT_MARK[a.result]}</span>
+      <div><h2></h2><div class="meta">${fmt(a.submittedAt)}・${RESULT_WORD[a.result]}・考えた時間 ${minutes(a)}・ヒント ${a.hints.length}こ</div></div>
+    </div>
+    <div class="tools">
+      ${latest.id === a.id && a.result !== "correct" ? `<a class="btn primary" href="${problemUrl(a.subject, a.problemId)}">もういちど とく</a>` : ""}
+      <button class="btn del" id="del">この記録を消す</button>
+    </div>
+    <div id="sheet"></div>`;
+  el.querySelector("h2").textContent = `${Number(a.problemId)}. ${a.title}`;
+
+  // 消すボタンは 2 回押しで確定（ブラウザの確認ダイアログは使わない）
+  const del = el.querySelector("#del");
+  del.onclick = async () => {
+    if (!del.classList.contains("armed")) {
+      del.classList.add("armed");
+      del.textContent = "ほんとうに消す？（もう一度おす）";
+      setTimeout(() => { del.classList.remove("armed"); del.textContent = "この記録を消す"; }, 3000);
+      return;
+    }
+    await db.deleteAttempt(a.id);
+    attempts = await db.allAttempts();
+    renderList();
+    el.innerHTML = `<p class="muted">消しました。</p>`;
+  };
+
+  try {
+    const prob = await loadProblem(a.subject, a.problemId);
+    const width = Math.min(el.clientWidth, 1000);
+    const sheet = renderSheet(el.querySelector("#sheet"), prob, { width, answers: a.answers, marks: a.marks });
+    drawAll(sheet.ink, a.strokes || []);
+  } catch {
+    el.querySelector("#sheet").innerHTML = `<p class="muted">この問題は 今は ありません。</p>`;
+  }
+}
+
+document.getElementById("export").onclick = async () => {
+  const data = await db.exportData();
+  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `naruhodrill-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+};
+
+document.getElementById("import").onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById("status");
+  try {
+    const added = await db.importData(JSON.parse(await file.text()));
+    status.textContent = `${added}件の記録を読み込みました。`;
+    attempts = await db.allAttempts();
+    renderList();
+  } catch (err) {
+    status.textContent = `読み込めませんでした：${err.message}`;
+  }
+  e.target.value = "";
+};
+
+attempts = await db.allAttempts();
+renderList();
+if (attempts.length) show(attempts[0].id);
+</script>
+</body>
+</html>

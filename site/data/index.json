@@ -1,0 +1,118 @@
+{
+ "math": [
+  {
+   "id": "001",
+   "title": "ならんだ 円と 長方形",
+   "lv": "Lv.3",
+   "area": "図形（円・まわりの長さ）",
+   "status": "published"
+  },
+  {
+   "id": "002",
+   "title": "あめを 分けたら あまった",
+   "lv": "Lv.2〜3",
+   "area": "数と計算（あまりのあるわり算）",
+   "status": "published"
+  },
+  {
+   "id": "003",
+   "title": "水を 入れた びんの 重さ",
+   "lv": "Lv.2〜3",
+   "area": "量と測定（重さ）",
+   "status": "published"
+  },
+  {
+   "id": "004",
+   "title": "切り取った 形の まわり",
+   "lv": "Lv.2〜3",
+   "area": "図形（まわりの長さ）",
+   "status": "published"
+  },
+  {
+   "id": "005",
+   "title": "入れかえて たした 数",
+   "lv": "Lv.3",
+   "area": "数と計算（たし算の筆算・□を使った式）",
+   "status": "published"
+  },
+  {
+   "id": "006",
+   "title": "道に 木を うえる",
+   "lv": "Lv.2",
+   "area": "数と計算（植木算の入口）",
+   "status": "published"
+  },
+  {
+   "id": "007",
+   "title": "バスに 間に合う？",
+   "lv": "Lv.2〜3",
+   "area": "時こくと時間",
+   "status": "published"
+  },
+  {
+   "id": "008",
+   "title": "すきな くだもの",
+   "lv": "Lv.2〜3",
+   "area": "データの活用（ぼうグラフ）",
+   "status": "published"
+  },
+  {
+   "id": "009",
+   "title": "兄と 弟の おこづかい",
+   "lv": "Lv.2",
+   "area": "数と計算（和と差・テープ図）",
+   "status": "published"
+  },
+  {
+   "id": "010",
+   "title": "あめと ガム",
+   "lv": "Lv.3",
+   "area": "数と計算（表に書き出して考える）",
+   "status": "published"
+  }
+ ],
+ "kokugo": [
+  {
+   "id": "001",
+   "title": "空を とばない 鳥",
+   "lv": "Lv.2〜3",
+   "area": "読むこと（説明文）・つなぐ言葉",
+   "status": "published"
+  },
+  {
+   "id": "002",
+   "title": "まるく なる ダンゴムシ",
+   "lv": "Lv.2〜3",
+   "area": "読むこと（説明文）・書きぬき",
+   "status": "published"
+  },
+  {
+   "id": "003",
+   "title": "はなした 手",
+   "lv": "Lv.2〜3",
+   "area": "読むこと（物語文）・気持ち",
+   "status": "published"
+  },
+  {
+   "id": "004",
+   "title": "何が どんなだ",
+   "lv": "Lv.2〜3",
+   "area": "言葉のきまり（主語・{述語|じゅつご}・くわしくする言葉）",
+   "status": "published"
+  },
+  {
+   "id": "005",
+   "title": "部品を たすと 漢字に なる",
+   "lv": "Lv.2",
+   "area": "漢字（部品）",
+   "status": "published"
+  },
+  {
+   "id": "006",
+   "title": "ぴったりの ことわざ",
+   "lv": "Lv.2",
+   "area": "言葉（ことわざ・慣用句）",
+   "status": "published"
+  }
+ ]
+}

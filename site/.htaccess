@@ -1,0 +1,21 @@
+# なるほドリル（静的サイト）
+# 親フォルダの書き換え設定は、ここで RewriteEngine On にすると効かなくなるので、HTTPS への転送をここでも行う。
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+Options -Indexes
+AddType text/javascript .js
+AddType application/json .json
+
+<IfModule mod_headers.c>
+  # 更新がすぐ届くように、HTML・JS・CSS・問題データは毎回サーバーに確認させる（変わっていなければ 304 で軽い）
+  <FilesMatch "\.(html|js|css|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(svg|png)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

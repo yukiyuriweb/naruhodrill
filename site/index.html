@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>なるほドリル｜考えて、なるほど。小3の算数・国語</title>
+<meta name="description" content="小学3年生向けの、考える力を育てる算数・国語の問題集。ヒントと解説つき。登録不要・無料。">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .tagline { font-size: 14px; font-weight: normal; color: var(--muted); margin-left: 6px; }
+  .lead { margin: 0 0 12px; color: var(--muted); line-height: 1.7; }
+  .tabs { display: flex; gap: 8px; margin: 8px 0 4px; }
+  .tabs .btn.on { background: var(--accent-soft); border-color: var(--accent); font-weight: bold; }
+  h2 { font-size: 18px; margin: 18px 0 8px; }
+  ul.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  ul.grid a { display: flex; gap: 10px; align-items: center; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--fg); min-height: 56px; }
+  .num { font-weight: bold; color: var(--muted); width: 1.6em; text-align: right; }
+  .t { flex: 1; line-height: 1.4; }
+  .t small { display: block; color: var(--muted); font-size: 12px; }
+  .marks { font-weight: bold; font-size: 18px; letter-spacing: 2px; }
+  .draft { font-size: 11px; background: #eee; border-radius: 4px; padding: 0 5px; color: #666; }
+  #retrySec { display: none; background: #fff4e5; border-radius: 12px; padding: 4px 12px 12px; margin-top: 12px; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <h1><a href="./" id="siteName"></a> <span class="tagline">考えて、なるほど。</span></h1>
+    <a class="btn" href="records.html">きろく</a>
+    <a class="btn" href="about.html">このサイトについて</a>
+  </div>
+  <p class="lead">小学3年生向けの、じっくり考える問題です。すぐに解けなくても大丈夫。時間がたつとヒントが開きます。</p>
+  <div class="tabs" id="tabs"></div>
+  <section id="retrySec"><h2>もういちど</h2><ul class="grid" id="retry"></ul></section>
+  <h2 id="listTitle">もんだい</h2>
+  <ul class="grid" id="list"></ul>
+  <footer class="site">記録はこの端末のブラウザの中にだけ保存されます。</footer>
+</div>
+<script type="module">
+import { SITE_NAME, SUBJECTS, RESULT_MARK, IS_LOCAL, richText, loadIndex, problemKey, problemUrl } from "./js/common.js";
+import { allAttempts } from "./js/db.js";
+
+document.getElementById("siteName").textContent = SITE_NAME;
+// 開発中（localhost）は、作問の確認ページへのリンクを出す
+if (IS_LOCAL) document.querySelector(".topbar").insertAdjacentHTML("beforeend", `<a class="btn" href="review.html">問題の確認</a>`);
+const params = new URLSearchParams(location.search);
+const subject = SUBJECTS[params.get("s")] ? params.get("s") : "math";
+
+const [index, attempts] = await Promise.all([loadIndex(), allAttempts().catch(() => [])]);
+
+document.getElementById("tabs").innerHTML = Object.entries(SUBJECTS)
+  .map(([k, v]) => `<a class="btn ${k === subject ? "on" : ""}" href="?s=${k}">${v}</a>`).join("");
+document.getElementById("listTitle").textContent = `${SUBJECTS[subject]}の もんだい`;
+
+// 開発中（localhost）は下書きも出す
+const problems = (index[subject] || []).filter((p) => p.status === "published" || IS_LOCAL);
+const ul = document.getElementById("list");
+const retry = document.getElementById("retry");
+if (!problems.length) ul.innerHTML = `<li class="empty">じゅんびちゅうです。</li>`;
+
+for (const p of problems) {
+  const mine = attempts.filter((a) => a.key === problemKey(subject, p.id)).reverse(); // 古い順
+  const marks = mine.map((a) => `<span class="mark-${a.result}">${RESULT_MARK[a.result]}</span>`).join("");
+  const li = document.createElement("li");
+  li.innerHTML = `<a href="${problemUrl(subject, p.id)}">
+    <span class="num">${Number(p.id)}</span>
+    <span class="t"><span class="tt"></span> ${p.status === "draft" ? `<span class="draft">下書き</span>` : ""}<small></small></span>
+    <span class="marks">${marks}</span></a>`;
+  li.querySelector(".tt").innerHTML = richText(p.title);
+  li.querySelector("small").innerHTML = richText(`${p.area}・${p.lv}`);
+  ul.appendChild(li);
+  // いちばん新しい記録が ×・△・こたえを見た なら「もういちど」にも出す
+  const latest = mine[mine.length - 1];
+  if (latest && latest.result !== "correct") retry.appendChild(li.cloneNode(true));
+}
+if (retry.children.length) document.getElementById("retrySec").style.display = "block";
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 250" width="460" height="250" font-family="sans-serif">
+  <defs>
+    <clipPath id="b1"><path d="M85 40 h30 v28 q32 12 32 40 v80 h-94 v-80 q0-28 32-40 z"/></clipPath>
+    <clipPath id="b2"><path d="M315 40 h30 v28 q32 12 32 40 v80 h-94 v-80 q0-28 32-40 z"/></clipPath>
+  </defs>
+  <!-- 左：水いっぱい -->
+  <rect x="53" y="44" width="94" height="144" fill="#9fd0f5" clip-path="url(#b1)"/>
+  <path d="M85 40 h30 v28 q32 12 32 40 v80 h-94 v-80 q0-28 32-40 z" fill="none" stroke="#333" stroke-width="3"/>
+  <rect x="30" y="188" width="140" height="24" rx="4" fill="#ddd" stroke="#333" stroke-width="2"/>
+  <text x="100" y="238" text-anchor="middle" font-size="22" font-weight="bold">1 kg 200 g</text>
+  <!-- 右：水はんぶん -->
+  <rect x="283" y="116" width="94" height="72" fill="#9fd0f5" clip-path="url(#b2)"/>
+  <path d="M315 40 h30 v28 q32 12 32 40 v80 h-94 v-80 q0-28 32-40 z" fill="none" stroke="#333" stroke-width="3"/>
+  <rect x="260" y="188" width="140" height="24" rx="4" fill="#ddd" stroke="#333" stroke-width="2"/>
+  <text x="330" y="238" text-anchor="middle" font-size="22" font-weight="bold">750 g</text>
+  <path d="M190 115 h60" stroke="#999" stroke-width="3" marker-end="url(#a)"/>
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#999"/></marker></defs>
+  <text x="220" y="100" text-anchor="middle" font-size="16" fill="#666">水を はんぶん</text>
+  <text x="220" y="140" text-anchor="middle" font-size="16" fill="#666">つかう</text>
+</svg>

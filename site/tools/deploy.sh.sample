@@ -1,0 +1,21 @@
+#!/bin/sh
+# なるほドリルを Web サーバーに公開する（rsync で送る）。
+#
+# 使い方:
+#   cp site/tools/deploy.sh.sample site/tools/deploy.sh   # deploy.sh は git に入らない（.gitignore）
+#   下の DEST を自分のサーバーに書き換える
+#   sh site/tools/deploy.sh -n   # 送る内容を確認するだけ（dry run）
+#   sh site/tools/deploy.sh      # 公開する
+#
+# main を push すると .githooks/pre-push からも呼ばれる。
+# 公開する問題（status が published のもの）だけを dist/ に書き出してから送る。
+set -eu
+cd "$(dirname "$0")/../.."
+
+# 送り先（rsync の書き方。ホスト名は ~/.ssh/config の Host 名が使える）
+DEST="your-ssh-host:path/to/public_html/your-site/"
+
+uv run site/tools/build.py --dist
+# --delete でサーバー側の古いファイルを消す。サーバーが置いているファイルは除外する
+rsync -rlptvz --delete --exclude '.user.ini' --exclude '.well-known' "$@" \
+  dist/ "$DEST"

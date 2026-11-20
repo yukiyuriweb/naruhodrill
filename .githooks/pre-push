@@ -1,0 +1,20 @@
+#!/bin/sh
+# main を push するとき、検算して naruhodrill.yukiyuriweb.com に公開する。
+# 失敗したら push も止める（GitHub と公開中のサイトを食い違わせないため）。
+# 有効にするには: git config core.hooksPath .githooks
+set -eu
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ] && [ "$local_sha" != "0000000000000000000000000000000000000000" ]; then
+    # 作業中の変更が混ざらないよう、未コミットの変更があるときは止める
+    if [ -n "$(git status --porcelain)" ]; then
+      echo "pre-push: コミットしていない変更があります。コミットするか退避してから push してください。" >&2
+      exit 1
+    fi
+    if [ ! -f site/tools/deploy.sh ]; then
+      echo "pre-push: site/tools/deploy.sh がありません。deploy.sh.sample をコピーして、送り先（DEST）を書き換えてください。" >&2
+      exit 1
+    fi
+    echo "pre-push: main を公開します" >&2
+    sh site/tools/deploy.sh
+  fi
+done

@@ -1,0 +1,87 @@
+:root {
+  --bg: #fbfaf7;
+  --fg: #222;
+  --muted: #6b6b6b;
+  --line: #ddd;
+  --card: #fff;
+  --accent: #2a7de1;
+  --accent-soft: #e8f0fc;
+  --warm: #f3c56b;
+  --warm-soft: #fffdf3;
+  --ok: #1a9a52;
+  --ng: #d23;
+  --mid: #c27c00;
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); margin: 0; }
+a { color: var(--accent); }
+.btn {
+  display: inline-block; padding: 8px 14px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--card); color: var(--fg); font: inherit; font-size: 16px; text-decoration: none; cursor: pointer;
+  white-space: nowrap;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: bold; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.mark-correct { color: var(--ok); }
+.mark-wrong { color: var(--ng); }
+.mark-partial { color: var(--mid); }
+.mark-revealed { color: var(--muted); }
+.muted { color: var(--muted); }
+.page { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 12px 0; flex-wrap: wrap; }
+.topbar h1 { font-size: 22px; margin: 0; flex: 1; }
+.topbar h1 a { color: inherit; text-decoration: none; }
+footer.site { margin-top: 40px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+/* 問題の紙 */
+.sheet-wrap { position: relative; overflow: hidden; background: #fff; border: 1px solid var(--line); }
+.sheet {
+  position: absolute; left: 0; top: 0; width: 1000px; height: 707px; transform-origin: 0 0;
+  display: grid; grid-template-columns: 560px 1fr; grid-template-rows: auto 1fr; gap: 0 28px;
+  padding: 24px 32px; font-size: 22px; line-height: 1.9; background: #fff; color: #222;
+}
+.sheet .s-head { grid-column: 1 / 3; display: flex; align-items: center; gap: 14px; border-bottom: 3px solid var(--warm); padding-bottom: 6px; margin-bottom: 10px; }
+.sheet .s-title { font-size: 26px; font-weight: bold; flex: 1; }
+.sheet .lv { color: var(--muted); font-size: 16px; }
+.sheet p { margin: 0 0 10px; }
+.sheet b { color: #c0392b; white-space: nowrap; }
+.sheet rt { font-size: 11px; }
+.sheet .fig { display: block; max-width: 100%; max-height: 300px; margin: 6px auto 0; }
+.sheet .s-right { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.sheet .part .q { line-height: 1.7; }
+.sheet .lbl { font-weight: bold; }
+.sheet .row { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.sheet .ans { position: relative; z-index: 2; width: 140px; height: 52px; font: inherit; font-size: 28px; text-align: center; border: 2px solid #e88aa8; border-radius: 6px; background: #fff; color: #222; }
+.sheet .ans { -webkit-user-select: text; user-select: text; }
+.sheet .ans.text { font-size: 22px; text-align: left; padding: 0 10px; }
+.sheet .count { white-space: nowrap; font-size: 15px; color: var(--muted); }
+.sheet .choices { position: relative; z-index: 2; display: flex; gap: 8px; flex-wrap: wrap; }
+.sheet .choice { font: inherit; font-size: 20px; padding: 4px 14px; border: 2px solid #e88aa8; border-radius: 8px; background: #fff; color: #222; cursor: pointer; }
+.sheet .choice.on { background: #fde3ec; border-color: #d0457a; font-weight: bold; }
+.sheet .unit { font-size: 24px; }
+.sheet .mk { font-size: 34px; font-weight: bold; min-width: 40px; }
+.sheet .msg { font-size: 17px; line-height: 1.5; color: var(--mid); }
+.sheet .msg:empty { display: none; }
+.sheet .correct { font-size: 18px; color: var(--ok); }
+.sheet .memo { flex: 1; min-height: 80px; border: 2px dashed var(--line); border-radius: 8px; color: #bbb; font-size: 16px; padding: 4px 10px; }
+.sheet .ink { position: absolute; left: 0; top: 0; width: 1000px; height: 707px; z-index: 1; touch-action: none; }
+
+/* 文章の長い問題（国語の読解など）：本文を上に横いっぱい、設問を下に 2 列で。メモ欄はなし（本文に書きこむ） */
+.sheet.reading { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; font-size: 19px; line-height: 1.8; }
+.sheet.reading .s-head { grid-column: 1; }
+.sheet.reading .s-left { padding-bottom: 6px; margin-bottom: 8px; border-bottom: 2px dashed var(--line); }
+.sheet.reading p { margin-bottom: 4px; }
+/* 設問は左右 2 列（どの設問をどちらに置くかは sheet.js） */
+.sheet.reading .s-right { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 28px; align-content: start; }
+.sheet.reading .col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sheet.reading .part .q { line-height: 1.5; }
+.sheet.reading .row { flex-wrap: nowrap; } /* ○×を 選択肢の 横に（下に 回すと 紙から はみ出す） */
+.sheet.reading .memo { display: none; }
+.sheet .choices.long { flex-direction: column; align-items: stretch; gap: 4px; }
+.sheet .choices.long .choice { text-align: left; font-size: 17px; line-height: 1.4; padding: 4px 10px; }
+.sheet .row:has(.choices.long) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.sheet.reading .choices:not(.long) { gap: 4px; min-width: 0; }
+.sheet.reading .choices:not(.long) .choice { font-size: 17px; padding: 2px 6px; white-space: nowrap; }
+.sheet.reading .msg { display: none; } /* 読解はメッセージをパネルに出す（problem.html） */

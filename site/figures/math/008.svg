@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260" font-family="sans-serif" font-size="15">
+  <!-- 1目もり = 24px。いちご7・みかん5・りんご4・ぶどう3 目もり -->
+  <text x="50" y="18" font-size="13">（人）</text>
+  <g stroke="#ccc" stroke-width="1">
+    <line x1="50" y1="212" x2="380" y2="212"/><line x1="50" y1="188" x2="380" y2="188"/><line x1="50" y1="164" x2="380" y2="164"/>
+    <line x1="50" y1="140" x2="380" y2="140"/><line x1="50" y1="116" x2="380" y2="116"/><line x1="50" y1="92" x2="380" y2="92"/>
+    <line x1="50" y1="68" x2="380" y2="68"/><line x1="50" y1="44" x2="380" y2="44"/>
+  </g>
+  <line x1="50" y1="30" x2="50" y2="236" stroke="#333" stroke-width="2"/>
+  <line x1="50" y1="236" x2="380" y2="236" stroke="#333" stroke-width="2"/>
+  <text x="42" y="241" text-anchor="end">0</text>
+  <g fill="#f4a3a8" stroke="#333" stroke-width="1.5">
+    <rect x="70" y="68" width="50" height="168"/>
+    <rect x="150" y="116" width="50" height="120" fill="#f8c77a"/>
+    <rect x="230" y="140" width="50" height="96" fill="#f28b82"/>
+    <rect x="310" y="164" width="50" height="72" fill="#b39ddb"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="95" y="256">いちご</text><text x="175" y="256">みかん</text><text x="255" y="256">りんご</text><text x="335" y="256">ぶどう</text>
+  </g>
+</svg>
