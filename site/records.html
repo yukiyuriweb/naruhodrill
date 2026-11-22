@@ -6,6 +6,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>きろく - なるほドリル</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f3c56b">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-title" content="なるほドリル">
+<script src="js/pwa.js" defer></script>
 <style>
   .layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
   @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
@@ -30,6 +37,7 @@
   <div class="topbar">
     <h1><a href="./" id="siteName"></a></h1>
     <a class="btn" href="./">もんだい</a>
+    <a class="btn" href="dashboard.html">がんばり</a>
   </div>
   <div class="tools">
     <button class="btn" id="export">記録をファイルに書き出す</button>
