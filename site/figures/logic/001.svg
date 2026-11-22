@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 170" width="480" height="170" font-family="sans-serif">
+  <g stroke="#333" stroke-width="2">
+    <rect x="15" y="15" width="96" height="130" rx="10" fill="#fff"/>
+    <rect x="133" y="15" width="96" height="130" rx="10" fill="#fff"/>
+    <rect x="251" y="15" width="96" height="130" rx="10" fill="#3b78d8"/>
+    <rect x="369" y="15" width="96" height="130" rx="10" fill="#d9403a"/>
+  </g>
+  <g font-size="26" font-weight="bold" text-anchor="middle">
+    <text x="63" y="90" fill="#222">ねこ</text>
+    <text x="181" y="90" fill="#222">いぬ</text>
+    <text x="299" y="90" fill="#fff">青</text>
+    <text x="417" y="90" fill="#fff">赤</text>
+  </g>
+  <g font-size="16" text-anchor="middle" fill="#666">
+    <text x="63" y="165">動物の面</text>
+    <text x="181" y="165">動物の面</text>
+    <text x="299" y="165">色の面</text>
+    <text x="417" y="165">色の面</text>
+  </g>
+</svg>

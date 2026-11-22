@@ -7,7 +7,7 @@
     uv run site/tools/build.py          # チェックして site/data/index.json を作る（下書きも含む。開発用）
     uv run site/tools/build.py --dist   # さらに dist/ に公開する問題だけを書き出す
 
-算数の問題は、問題文の条件だけから答えを総当たりで求め直し、
+算数・論理パズル・空間把握の問題は、問題文の条件だけから答えを総当たりで求め直し、
 答えが 1 つに決まること・JSON の答えと一致することを確かめる。
 """
 
@@ -21,7 +21,7 @@ from pathlib import Path
 SITE = Path(__file__).resolve().parent.parent
 DATA = SITE / "data"
 DIST = SITE.parent / "dist"
-SUBJECTS = ["math", "kokugo"]
+SUBJECTS = ["math", "kokugo", "logic", "spatial"]
 
 # 小1〜3 で習う漢字。これ以外の漢字には、ふりがな {漢字|かんじ} を付ける
 KANJI_G1_3 = set("".join(
@@ -54,6 +54,11 @@ MATH_BANNED_RE = [
     re.compile(r"\d\s*[:：]\s*\d"),  # 比
     re.compile(r"\d\s*度"),  # 角度（「もう一度」は対象外）
 ]
+# 論理パズル・空間把握の指針 3 章の、言いかえる専門用語（算数の禁止事項にも従う）
+TERMS_BANNED = {
+    "logic": ["対偶", "背理法", "反例", "到達可能性", "グラフ"],
+    "spatial": ["投影図", "鏡映", "対称軸", "回転対称", "体積", "表面積"],
+}
 
 
 # ---- 算数の検算（問題 ID ごと） ----
@@ -189,7 +194,131 @@ def math_020():
             if d + 4 == 12 and c + 4 == 9 and d + c + 4 + n == 32]
 
 
+# ---- 論理パズルの検算 ----
+
+def logic_001():
+    # 表に動物・うらに色のカード。見えている面：ねこ・いぬ・青・赤。ルール「ねこの うらは かならず 青」
+    # (1) めくって たしかめないと いけない カード（選択肢 ① ねこ ② ねこと青 ③ ねこと赤 ④ ねこと青と赤）
+    # (2) 青の カードの うらが いぬ なら ルールやぶりか（① はい ② いいえ）
+    animals, colors = ["ねこ", "いぬ"], ["青", "赤"]
+    breaks = lambda animal, color: animal == "ねこ" and color != "青"
+    need = [f for f in animals if any(breaks(f, c) for c in colors)]
+    need += [f for f in colors if any(breaks(a, f) for a in animals)]
+    options = [["ねこ"], ["ねこ", "青"], ["ねこ", "赤"], ["ねこ", "青", "赤"]]
+    return [[options.index(need) + 1, 1 if breaks("いぬ", "青") else 2]]
+
+
+def logic_002():
+    # 5人の かけっこ。(1) さくらは 何位 (2) 3位は だれ（① あおい ② かいと ③ さくら ④ だいち ⑤ えみ）
+    from itertools import permutations
+    names = ["あおい", "かいと", "さくら", "だいち", "えみ"]
+    sols = []
+    for order in permutations(names):
+        r = {n: order.index(n) + 1 for n in order}
+        if (r["えみ"] == r["あおい"] + 1 and r["かいと"] < r["さくら"] and r["だいち"] != 5
+                and abs(r["だいち"] - r["さくら"]) == 1 and r["えみ"] < r["かいと"]):
+            sols.append([r["さくら"], names.index(order[2]) + 1])
+    return sols
+
+
+def logic_003():
+    # 3dL と 5dL の ます。入れる・すてる・うつす を 1回と数えて、4dL を 作る いちばん少ない回数
+    def moves(s):
+        a, b = s
+        yield (3, b); yield (a, 5); yield (0, b); yield (a, 0)
+        t = min(a, 5 - b); yield (a - t, b + t)
+        t = min(b, 3 - a); yield (a + t, b - t)
+
+    def shortest(start, steps):
+        seen, frontier = {start}, [start]
+        while frontier:
+            if any(4 in s for s in frontier):
+                return steps
+            frontier = [n for s in frontier for n in moves(s) if n not in seen and not seen.add(n)]
+            steps += 1
+    return [[shortest((0, 0), 0)]]
+
+
+# ---- 空間把握の検算 ----
+
+def roll_net(cells):
+    """展開図（マス目の集まり）の上でサイコロを転がし、マスごとに どの面が下に来るかを返す"""
+    turns = {(0, 1): "E", (0, -1): "W", (1, 0): "S", (-1, 0): "N"}
+    opp = {"E": "W", "W": "E", "N": "S", "S": "N"}
+    start = cells[0]
+    faces = {start: "下"}
+    stack = [(start, {d: d for d in ["上", "下", "E", "W", "N", "S"]})]
+    while stack:
+        (r, c), st = stack.pop()
+        for (dr, dc), d in turns.items():
+            n = (r + dr, c + dc)
+            if n in cells and n not in faces:
+                # d の向きへ転がると、d の面が下に、下の面が反対の向きに、反対の面が上に、上の面が d に行く
+                new = dict(st)
+                new["下"], new[opp[d]], new["上"], new[d] = st[d], st["下"], st[opp[d]], st["上"]
+                faces[n] = new["下"]
+                stack.append((n, new))
+    return faces
+
+
+def spatial_001():
+    # かいだんの形の展開図。上のだん 左から 5・ア、まんなか 3・イ、下のだん 1・ウ。向かい合う目を たすと 7
+    cells = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2), (2, 3)]
+    faces = roll_net(cells)
+    pair = {"上": "下", "下": "上", "E": "W", "W": "E", "N": "S", "S": "N"}
+    opposite = {a: b for a in cells for b in cells if faces[b] == pair[faces[a]]}
+    given = {(0, 0): 5, (1, 1): 3, (2, 2): 1}
+    blanks = [(0, 1), (1, 2), (2, 3)]  # ア・イ・ウ
+    assert all(opposite[b] in given for b in blanks)
+    return [[7 - given[opposite[b]] for b in blanks]]
+
+
+def spatial_002():
+    # 道の地図。たての道 x＝0〜3、よこの道 y＝0〜2（y は上が大きい）。どの道も 外がわに 1マス 出たところが はし
+    # スタートは たての道 x＝1 の 下のはし、上を 向いて 立つ。
+    # 「2つ目の かどを 右」「1つ目の かどを 右」「1つ目の かどを 左」「つきあたりまで」
+    # 着く場所（① ア ② イ ③ ウ ④ エ）
+    places = {(4, 0): 1, (-1, 0): 2, (4, 1): 3, (2, -1): 4}  # ア：y=0 の右はし、イ：y=0 の左はし、ウ：y=1 の右はし、エ：x=2 の下はし
+    inside = lambda x, y: 0 <= x <= 3 and 0 <= y <= 2
+    right = {(0, 1): (1, 0), (1, 0): (0, -1), (0, -1): (-1, 0), (-1, 0): (0, 1)}
+    left = {v: k for k, v in right.items()}
+    pos, d = (1, -1), (0, 1)
+    for nth, turn in [(2, right), (1, right), (1, left)]:
+        for _ in range(nth):
+            pos = (pos[0] + d[0], pos[1] + d[1])
+            assert inside(*pos)
+        d = turn[d]
+    while inside(*pos) or pos == (1, -1):
+        pos = (pos[0] + d[0], pos[1] + d[1])
+    return [[places[pos]]]
+
+
+def spatial_003():
+    # 立方体（1辺 1）を 頂点を通る 平らな面で 切った 切り口の形
+    # ア(0,0,1) イ(1,0,1) ウ(1,1,1) エ(0,1,1) オ(0,0,0) カ(1,0,0) キ(1,1,0) ク(0,1,0)
+    # (1) ア・ウ・カ (2) オ・カ・ウ・エ
+    # 選択肢 ① 正三角形 ② 二等辺三角形 ③ 直角三角形 ④ 正方形 ⑤ 長方形
+    V = {"ア": (0, 0, 1), "イ": (1, 0, 1), "ウ": (1, 1, 1), "エ": (0, 1, 1),
+         "オ": (0, 0, 0), "カ": (1, 0, 0), "キ": (1, 1, 0), "ク": (0, 1, 0)}
+    d2 = lambda p, q: sum((a - b) ** 2 for a, b in zip(p, q))
+    dot = lambda p, q, r: sum((a - b) * (c - b) for a, b, c in zip(p, q, r))  # q の角が直角なら 0
+
+    def shape(names):
+        pts = [V[n] for n in names]  # 切り口を まわる 順に ならべてある
+        n = len(pts)
+        sides = [d2(pts[i], pts[(i + 1) % n]) for i in range(n)]
+        rights = [dot(pts[i - 1], pts[i], pts[(i + 1) % n]) == 0 for i in range(n)]
+        if n == 3:
+            if len(set(sides)) == 1:
+                return 1
+            return 3 if any(rights) else 2
+        assert all(rights)
+        return 4 if len(set(sides)) == 1 else 5
+    return [[shape(["ア", "ウ", "カ"]), shape(["オ", "カ", "ウ", "エ"])]]
+
+
 SOLVERS = {f"math/{i:03d}": globals()[f"math_{i:03d}"] for i in range(1, 21)}
+SOLVERS |= {f"{s}/{i:03d}": globals()[f"{s}_{i:03d}"] for s in ("logic", "spatial") for i in range(1, 4)}
 
 
 def texts(p, for_child=True):
@@ -264,15 +393,15 @@ def check(path: Path, subject: str) -> list[str]:
     for t in texts(p):
         if (ks := unruby_kanji(t)):
             errs.append(f"ふりがなが要る漢字 {''.join(sorted(ks))}: {t}")
-        if subject == "math":
-            errs += [f"禁止語「{w}」: {t}" for w in MATH_BANNED if w in t]
+        if subject != "kokugo":
+            errs += [f"禁止語「{w}」: {t}" for w in MATH_BANNED + TERMS_BANNED.get(subject, []) if w in t]
             errs += [f"禁止パターン {r.pattern}: {t}" for r in MATH_BANNED_RE if r.search(t)]
     for t in texts(p, for_child=False):
         if t.count("{") != t.count("}") or t.count("**") % 2:
             errs.append(f"ふりがな・太字の記号が閉じていない: {t}")
 
-    if subject == "math":
-        solver = SOLVERS.get(f"math/{p['id']}")
+    if subject != "kokugo":
+        solver = SOLVERS.get(f"{subject}/{p['id']}")
         if solver is None:
             errs.append("検算の関数がない（SOLVERS に追加すること）")
         else:

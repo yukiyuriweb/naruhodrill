@@ -24,7 +24,7 @@ import accesslog
 
 SITE = Path(__file__).resolve().parent.parent
 DATA = SITE / "data"
-SUBJECTS = ["math", "kokugo"]
+SUBJECTS = ["math", "kokugo", "logic", "spatial"]
 STATUSES = ["draft", "published"]
 STATUS_RE = re.compile(r'^(\s*"status":\s*)"[a-z]+"', re.M)
 
