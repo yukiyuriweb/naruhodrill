@@ -1,7 +1,7 @@
 // 各ページで共有する小さな関数。
 
 export const SITE_NAME = "なるほドリル";
-export const SUBJECTS = { math: "さんすう", kokugo: "こくご" };
+export const SUBJECTS = { math: "さんすう", kokugo: "こくご", logic: "ろんり", spatial: "くうかん" };
 export const RESULT_MARK = { correct: "○", partial: "△", wrong: "×", revealed: "－" };
 export const RESULT_WORD = { correct: "せいかい！", partial: "おしい！", wrong: "ざんねん", revealed: "こたえを 見た" };
 
@@ -37,6 +37,11 @@ export function problemUrl(subject, id) {
 
 export async function loadIndex() {
   return fetch("data/index.json", { cache: "no-cache" }).then((r) => r.json());
+}
+
+// 問題のある教科だけ（公開中の問題がない教科は出さない。開発中は下書きも数える）
+export function visibleSubjects(index) {
+  return Object.keys(SUBJECTS).filter((s) => (index[s] || []).some((p) => p.status === "published" || IS_LOCAL));
 }
 
 export async function loadProblem(subject, id) {

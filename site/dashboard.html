@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="なるほドリル">
 <script src="js/pwa.js" defer></script>
 <style>
-  :root { --math: #2a7de1; --kokugo: #e0703a; }
+  :root { --math: #2a7de1; --kokugo: #e0703a; --logic: #2e9e6a; --spatial: #8d5cc9; }
   .layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; align-items: start; }
   @media (max-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr); } }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
@@ -24,6 +24,8 @@
   .legend i, .chip i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: 0; }
   .sw-math { background: var(--math); }
   .sw-kokugo { background: var(--kokugo); }
+  .sw-logic { background: var(--logic); }
+  .sw-spatial { background: var(--spatial); }
 
   /* カレンダー */
   .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
@@ -81,7 +83,7 @@
         <span class="month" id="monthLabel"></span>
         <button class="btn" id="next" aria-label="次の月">▶</button>
       </div>
-      <div class="legend"><span><i class="sw-math"></i>さんすう</span><span><i class="sw-kokugo"></i>こくご</span><span>（といた 回数）</span></div>
+      <div class="legend" id="legendCal"></div>
       <div class="cal" id="cal"></div>
       <div id="dayList"></div>
     </section>
@@ -94,7 +96,7 @@
         </div>
       </div>
       <div class="totals" id="totals"></div>
-      <div class="legend"><span><i class="sw-math"></i>さんすう</span><span><i class="sw-kokugo"></i>こくご</span></div>
+      <div class="legend" id="legendChart"></div>
       <div class="chart" id="chart"></div>
       <details><summary>数の ひょうで 見る</summary><div id="table"></div></details>
     </section>
@@ -102,24 +104,33 @@
   <footer class="site">記録はこの端末のブラウザの中にだけ保存されています。問題を 1回 出すごとに 1回と 数えます（同じ問題を 2回といたら 2回）。</footer>
 </div>
 <script type="module">
-import { SITE_NAME, SUBJECTS, RESULT_MARK, fmt } from "./js/common.js";
+import { SITE_NAME, SUBJECTS, RESULT_MARK, fmt, loadIndex, visibleSubjects } from "./js/common.js";
 import { allAttempts } from "./js/db.js";
 
 document.getElementById("siteName").textContent = SITE_NAME;
-const KEYS = ["math", "kokugo"];
+// 教科は、問題のあるものと、記録のあるもの（あとで下書きにもどした教科の記録も数える）。
+// 問題の一覧が読めないときは、さんすう・こくご
+const [index, attempts] = await Promise.all([loadIndex().catch(() => null), allAttempts().catch(() => [])]);
+const shown = index ? visibleSubjects(index) : ["math", "kokugo"];
+const KEYS = Object.keys(SUBJECTS).filter((s) => shown.includes(s) || attempts.some((a) => a.subject === s));
+const legend = KEYS.map((s) => `<span><i class="sw-${s}"></i>${SUBJECTS[s]}</span>`).join("");
+document.getElementById("legendCal").innerHTML = `${legend}<span>（といた 回数）</span>`;
+document.getElementById("legendChart").innerHTML = legend;
+const zero = () => ({ ...Object.fromEntries(KEYS.map((s) => [s, 0])), list: [] });
+// 「さんすう 2回・こくご 1回」のような、教科ごとの回数
+const perSubject = (c, sep) => KEYS.map((s) => `${SUBJECTS[s]} ${c[s]}回`).join(sep);
 const WEEK = "日月火水木金土";
 
-// 日ごとの回数 { "2026-11-22": { math: 2, kokugo: 1, list: [...] } }
+// 日ごとの回数 { "2026-11-22": { math: 2, kokugo: 1, ..., list: [...] } }
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-const attempts = await allAttempts().catch(() => []);
 const byDay = {};
 for (const a of attempts) {
   const k = dayKey(new Date(a.submittedAt));
-  const v = (byDay[k] ||= { math: 0, kokugo: 0, list: [] });
+  const v = (byDay[k] ||= zero());
   if (a.subject in v) v[a.subject]++;
   v.list.push(a);
 }
-const countOf = (k) => byDay[k] || { math: 0, kokugo: 0, list: [] };
+const countOf = (k) => byDay[k] || zero();
 
 // ---- カレンダー ----
 const today = new Date();
@@ -148,7 +159,7 @@ function renderCalendar() {
     btn.className = `day${c.list.length ? " done" : ""}${k === dayKey(today) ? " today" : ""}${k === selected ? " sel" : ""}`;
     btn.innerHTML = `<span class="d">${d}</span>`
       + KEYS.filter((s) => c[s]).map((s) => `<span class="chip"><i class="sw-${s}"></i><b>${c[s]}</b></span>`).join("");
-    btn.setAttribute("aria-label", `${view.getMonth() + 1}月${d}日 さんすう${c.math}回 こくご${c.kokugo}回`);
+    btn.setAttribute("aria-label", `${view.getMonth() + 1}月${d}日 ${perSubject(c, " ")}`);
     btn.onclick = () => { selected = k; renderCalendar(); };
     cal.appendChild(btn);
   }
@@ -164,7 +175,7 @@ function renderDayList() {
     el.innerHTML = `<h3>${title}</h3><p class="muted">この日は まだ といて いないよ。</p>`;
     return;
   }
-  el.innerHTML = `<h3>${title}　さんすう ${c.math}回・こくご ${c.kokugo}回</h3><ul></ul>`;
+  el.innerHTML = `<h3>${title}　${perSubject(c, "・")}</h3><ul></ul>`;
   const ul = el.querySelector("ul");
   for (const a of c.list.slice().reverse()) {
     const li = document.createElement("li");
@@ -204,7 +215,8 @@ function renderChart() {
   const data = lastDays(days);
   const W = 560, H = 300, L = 30, R = 8, T = 12, B = 34;
   const pw = W - L - R, ph = H - T - B;
-  const max = niceMax(Math.max(...data.map((d) => d.math + d.kokugo)));
+  const total = (d) => KEYS.reduce((t, s) => t + d[s], 0);
+  const max = niceMax(Math.max(...data.map(total)));
   const y = (v) => T + ph - (v / max) * ph;
   const slot = pw / data.length;
   const bw = Math.max(6, Math.min(40, slot * 0.6));
@@ -250,8 +262,7 @@ function renderChart() {
     el.classList.add("on");
     const d = data[Number(el.dataset.i)];
     tip.innerHTML = `<div><b>${d.date.getMonth() + 1}/${d.date.getDate()}（${WEEK[d.date.getDay()]}）</b></div>`
-      + `<div><i class="sw-math" style="display:inline-block;width:10px;height:10px;border-radius:3px"></i>さんすう ${d.math}回</div>`
-      + `<div><i class="sw-kokugo" style="display:inline-block;width:10px;height:10px;border-radius:3px"></i>こくご ${d.kokugo}回</div>`;
+      + KEYS.map((s) => `<div><i class="sw-${s}" style="display:inline-block;width:10px;height:10px;border-radius:3px"></i>${SUBJECTS[s]} ${d[s]}回</div>`).join("");
     const box = chart.getBoundingClientRect(), r = el.getBoundingClientRect();
     tip.style.left = `${Math.min(Math.max(r.left + r.width / 2 - box.left, 70), box.width - 70)}px`;
     tip.style.top = `${Math.max(r.top - box.top + 40, 60)}px`;
@@ -269,10 +280,10 @@ function renderChart() {
   const sum = (s) => data.reduce((t, d) => t + d[s], 0);
   const period = days === 7 ? "この 1しゅうかん" : "この 1か月（30日）";
   document.getElementById("totals").innerHTML =
-    `${period}：さんすう <b>${sum("math")}</b>回・こくご <b>${sum("kokugo")}</b>回・あわせて <b>${sum("math") + sum("kokugo")}</b>回`;
+    `${period}：${KEYS.map((s) => `${SUBJECTS[s]} <b>${sum(s)}</b>回`).join("・")}・あわせて <b>${data.reduce((t, d) => t + total(d), 0)}</b>回`;
 
-  document.getElementById("table").innerHTML = `<table><tr><th>日</th><th>さんすう</th><th>こくご</th></tr>`
-    + data.slice().reverse().map((d) => `<tr><td>${d.date.getMonth() + 1}/${d.date.getDate()}（${WEEK[d.date.getDay()]}）</td><td>${d.math}</td><td>${d.kokugo}</td></tr>`).join("")
+  document.getElementById("table").innerHTML = `<table><tr><th>日</th>${KEYS.map((s) => `<th>${SUBJECTS[s]}</th>`).join("")}</tr>`
+    + data.slice().reverse().map((d) => `<tr><td>${d.date.getMonth() + 1}/${d.date.getDate()}（${WEEK[d.date.getDay()]}）</td>${KEYS.map((s) => `<td>${d[s]}</td>`).join("")}</tr>`).join("")
     + `</table>`;
 }
 

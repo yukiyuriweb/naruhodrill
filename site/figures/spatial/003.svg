@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 462 274" width="462" height="274" font-family="sans-serif">
+  <g>
+    <polygon points="30,74 206,30 150,194" fill="#f6c3b8" fill-opacity=".75" stroke="#c0392b" stroke-width="3"/>
+    <line x1="30" y1="74" x2="150" y2="74" stroke="#333" stroke-width="2"/>
+    <line x1="150" y1="74" x2="206" y2="30" stroke="#333" stroke-width="2"/>
+    <line x1="206" y1="30" x2="86" y2="30" stroke="#333" stroke-width="2"/>
+    <line x1="86" y1="30" x2="30" y2="74" stroke="#333" stroke-width="2"/>
+    <line x1="30" y1="194" x2="150" y2="194" stroke="#333" stroke-width="2"/>
+    <line x1="150" y1="194" x2="206" y2="150" stroke="#333" stroke-width="2"/>
+    <line x1="206" y1="150" x2="86" y2="150" stroke="#333" stroke-width="2" stroke-dasharray="6 5"/>
+    <line x1="86" y1="150" x2="30" y2="194" stroke="#333" stroke-width="2" stroke-dasharray="6 5"/>
+    <line x1="30" y1="74" x2="30" y2="194" stroke="#333" stroke-width="2"/>
+    <line x1="150" y1="74" x2="150" y2="194" stroke="#333" stroke-width="2"/>
+    <line x1="206" y1="30" x2="206" y2="150" stroke="#333" stroke-width="2"/>
+    <line x1="86" y1="30" x2="86" y2="150" stroke="#333" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="12" y="73" font-size="20" text-anchor="middle" fill="#222">ア</text>
+    <text x="163" y="66" font-size="20" text-anchor="middle" fill="#222">イ</text>
+    <text x="221" y="23" font-size="20" text-anchor="middle" fill="#222">ウ</text>
+    <text x="79" y="18" font-size="20" text-anchor="middle" fill="#222">エ</text>
+    <text x="15" y="215" font-size="20" text-anchor="middle" fill="#222">オ</text>
+    <text x="157" y="220" font-size="20" text-anchor="middle" fill="#222">カ</text>
+    <text x="224" y="165" font-size="20" text-anchor="middle" fill="#222">キ</text>
+    <text x="73" y="172" font-size="20" text-anchor="middle" fill="#222">ク</text>
+    <text x="118" y="246" font-size="22" font-weight="bold" text-anchor="middle" fill="#222">(1)</text>
+  </g>
+  <g>
+    <polygon points="256,194 376,194 432,30 312,30" fill="#f6c3b8" fill-opacity=".75" stroke="#c0392b" stroke-width="3"/>
+    <line x1="256" y1="74" x2="376" y2="74" stroke="#333" stroke-width="2"/>
+    <line x1="376" y1="74" x2="432" y2="30" stroke="#333" stroke-width="2"/>
+    <line x1="432" y1="30" x2="312" y2="30" stroke="#333" stroke-width="2"/>
+    <line x1="312" y1="30" x2="256" y2="74" stroke="#333" stroke-width="2"/>
+    <line x1="256" y1="194" x2="376" y2="194" stroke="#333" stroke-width="2"/>
+    <line x1="376" y1="194" x2="432" y2="150" stroke="#333" stroke-width="2"/>
+    <line x1="432" y1="150" x2="312" y2="150" stroke="#333" stroke-width="2" stroke-dasharray="6 5"/>
+    <line x1="312" y1="150" x2="256" y2="194" stroke="#333" stroke-width="2" stroke-dasharray="6 5"/>
+    <line x1="256" y1="74" x2="256" y2="194" stroke="#333" stroke-width="2"/>
+    <line x1="376" y1="74" x2="376" y2="194" stroke="#333" stroke-width="2"/>
+    <line x1="432" y1="30" x2="432" y2="150" stroke="#333" stroke-width="2"/>
+    <line x1="312" y1="30" x2="312" y2="150" stroke="#333" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="238" y="73" font-size="20" text-anchor="middle" fill="#222">ア</text>
+    <text x="389" y="66" font-size="20" text-anchor="middle" fill="#222">イ</text>
+    <text x="447" y="23" font-size="20" text-anchor="middle" fill="#222">ウ</text>
+    <text x="305" y="18" font-size="20" text-anchor="middle" fill="#222">エ</text>
+    <text x="241" y="215" font-size="20" text-anchor="middle" fill="#222">オ</text>
+    <text x="383" y="220" font-size="20" text-anchor="middle" fill="#222">カ</text>
+    <text x="450" y="165" font-size="20" text-anchor="middle" fill="#222">キ</text>
+    <text x="299" y="172" font-size="20" text-anchor="middle" fill="#222">ク</text>
+    <text x="344" y="246" font-size="22" font-weight="bold" text-anchor="middle" fill="#222">(2)</text>
+  </g>
+</svg>

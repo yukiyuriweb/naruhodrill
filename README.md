@@ -23,7 +23,7 @@
 git config core.hooksPath .githooks   # 最初に一度だけ
 cp site/tools/deploy.sh.sample site/tools/deploy.sh   # 最初に一度だけ。DEST を書き換える
 uv run site/tools/build.py            # 検算と index.json の作成（下書きも含む）
-python3 -m http.server 8002 --directory site   # ローカルで確認（http://localhost:8002/）
+uv run site/tools/serve.py            # ローカルで確認（http://localhost:8002/）。review.html の公開・下書きの切り替えもこれで動く
 ```
 
 問題の `status` が `published` のものだけが公開されます。

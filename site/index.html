@@ -47,7 +47,7 @@
   <footer class="site">記録はこの端末のブラウザの中にだけ保存されます。</footer>
 </div>
 <script type="module">
-import { SITE_NAME, SUBJECTS, RESULT_MARK, IS_LOCAL, richText, loadIndex, problemKey, problemUrl } from "./js/common.js";
+import { SITE_NAME, SUBJECTS, RESULT_MARK, IS_LOCAL, richText, loadIndex, visibleSubjects, problemKey, problemUrl } from "./js/common.js";
 import { allAttempts } from "./js/db.js";
 
 document.getElementById("siteName").textContent = SITE_NAME;
@@ -58,7 +58,7 @@ const subject = SUBJECTS[params.get("s")] ? params.get("s") : "math";
 
 const [index, attempts] = await Promise.all([loadIndex(), allAttempts().catch(() => [])]);
 
-document.getElementById("tabs").innerHTML = Object.entries(SUBJECTS)
+document.getElementById("tabs").innerHTML = visibleSubjects(index).map((k) => [k, SUBJECTS[k]])
   .map(([k, v]) => `<a class="btn ${k === subject ? "on" : ""}" href="?s=${k}">${v}</a>`).join("");
 document.getElementById("listTitle").textContent = `${SUBJECTS[subject]}の もんだい`;
 

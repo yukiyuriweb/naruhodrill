@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" width="360" height="200" font-family="sans-serif">
+  <!-- ますの 高さは 入る かさに 合わせる（5dL：150、3dL：90） -->
+  <g fill="#fff" stroke="#333" stroke-width="3">
+    <path d="M60 30 V180 H160 V30"/>
+    <path d="M220 90 V180 H320 V90"/>
+  </g>
+  <g font-size="26" font-weight="bold" text-anchor="middle" fill="#222">
+    <text x="110" y="20">5dL</text>
+    <text x="270" y="80">3dL</text>
+  </g>
+</svg>
