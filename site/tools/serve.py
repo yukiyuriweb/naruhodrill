@@ -20,6 +20,8 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import accesslog
+
 SITE = Path(__file__).resolve().parent.parent
 DATA = SITE / "data"
 SUBJECTS = ["math", "kokugo"]
@@ -51,14 +53,35 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
+    def send_json(self, obj, code=200):
+        out = json.dumps(obj, ensure_ascii=False).encode()
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(out)))
+        self.end_headers()
+        self.wfile.write(out)
+
+    def do_GET(self):
+        # アクセスログの集計（access.html から）。日数は 1〜90
+        if self.path.startswith("/api/accesslog"):
+            m = re.fullmatch(r"/api/accesslog\?days=(\d{1,2})", self.path)
+            days = int(m.group(1)) if m else 7
+            return self.send_json(accesslog.summary(min(max(days, 1), 90)))
+        super().do_GET()
+
     def do_POST(self):
-        if self.path != "/api/status":
-            return self.send_error(404)
-        # ほかのサイトから送らせないよう、JSON で、同じ場所から来たものだけ受け付ける
+        # ほかのサイトから送らせないよう、同じ場所から来たものだけ受け付ける
         port = self.server.server_address[1]
         origin = self.headers.get("Origin")
         if origin not in (f"http://localhost:{port}", f"http://127.0.0.1:{port}"):
             return self.send_error(403)
+        if self.path == "/api/accesslog/fetch":
+            try:
+                return self.send_json(accesslog.fetch())
+            except Exception as e:  # CLI の失敗などは画面にそのまま出す
+                return self.send_json({"error": str(e)}, 500)
+        if self.path != "/api/status":
+            return self.send_error(404)
         if self.headers.get("Content-Type") != "application/json":
             return self.send_error(415)
         try:

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アクセス解析 - なるほドリル</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* 管理者用（ローカル専用。公開用の dist/ には入れない。集計は tools/serve.py が返す） */
+  .bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { font: inherit; font-size: 15px; padding: 6px 14px; border: 0; background: var(--card); color: var(--fg); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; font-weight: bold; }
+  #status { color: var(--muted); font-size: 14px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+  .tile .k { font-size: 13px; color: var(--muted); }
+  .tile .v { font-size: 30px; font-weight: bold; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .card h2 { font-size: 16px; margin: 0 0 8px; }
+  .card.wide { margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td { border-bottom: 1px solid var(--line); padding: 4px 6px; }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; width: 4em; }
+  td.b { width: 35%; }
+  td.b span { display: block; height: 8px; border-radius: 4px; background: var(--accent); min-width: 2px; }
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; }
+  .chart .grid line { stroke: #ececec; }
+  .chart .axis text { fill: var(--muted); font-size: 12px; }
+  .chart .hit { fill: transparent; }
+  .chart .hit:hover { fill: rgba(0, 0, 0, 0.05); }
+  .tip { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,.12); white-space: nowrap; transform: translate(-50%, -100%); }
+  .note { font-size: 13px; color: var(--muted); line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <h1><a href="./">なるほドリル</a> アクセス解析</h1>
+    <a class="btn" href="review.html">問題の確認</a>
+  </div>
+  <div class="bar">
+    <div class="seg" role="group" aria-label="きかん">
+      <button data-days="1">今日</button>
+      <button data-days="7" aria-pressed="true">7日</button>
+      <button data-days="30">30日</button>
+      <button data-days="90">90日</button>
+    </div>
+    <button class="btn primary" id="fetch">最新のログを取得</button>
+    <span id="status"></span>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <section class="card wide"><h2>日ごとの訪問者数</h2><div class="chart" id="chart"></div></section>
+  <div class="grid2">
+    <section class="card"><h2>よく開かれた問題</h2><div id="problems"></div></section>
+    <section class="card"><h2>ページ別のページビュー</h2><div id="pages"></div></section>
+    <section class="card"><h2>端末（訪問者数）</h2><div id="devices"></div></section>
+    <section class="card"><h2>参照元（ほかのサイトから）</h2><div id="referrers"></div></section>
+    <section class="card"><h2>見つからなかった URL（404）</h2><div id="notFound"></div></section>
+  </div>
+  <p class="note">
+    Xserver の API は「その日の」ログしか返しません。前の日のログは、その日のうちに取得しておいた分だけが残ります（<code>logs/access/</code>、git には入りません）。
+    毎日取得するには <code>uv run site/tools/accesslog.py fetch</code> を 1日1回 動かしてください。<br>
+    数え方：ページビューは HTML ページを開いた回数（ボットを除く）。訪問者は IP アドレスと ブラウザの組み合わせで数えています（IP はそのまま保存せず、ハッシュにしています）。
+    iPad の Safari はふつう Mac と同じ名のりをするので、「Mac」には iPad が含まれます。
+  </p>
+</div>
+<script type="module">
+import { IS_LOCAL, plainText, loadIndex, SUBJECTS } from "./js/common.js";
+
+if (!IS_LOCAL) {
+  document.querySelector(".page").innerHTML = "<p>このページは、手元の開発サーバーでだけ使えます。</p>";
+  throw new Error("local only");
+}
+
+const titles = {};
+try {
+  const index = await loadIndex();
+  for (const [s, list] of Object.entries(index)) for (const p of list) titles[`${s}/${p.id}`] = `${SUBJECTS[s]} ${Number(p.id)}. ${plainText(p.title)}`;
+} catch {}
+
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const fmtTime = (iso) => { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+let days = 7;
+
+function table(rows, label = (k) => k) {
+  if (!rows.length) return `<p class="note">まだ ありません。</p>`;
+  const max = Math.max(...rows.map((r) => r[1]));
+  return `<table>${rows.map(([k, n]) => `<tr><td>${esc(label(k))}</td><td class="b"><span style="width:${(n / max) * 100}%"></span></td><td class="n">${n}</td></tr>`).join("")}</table>`;
+}
+
+function chart(daily) {
+  const W = 900, H = 220, L = 34, R = 8, T = 10, B = 26;
+  const pw = W - L - R, ph = H - T - B;
+  const peak = Math.max(4, ...daily.map((d) => d.visitors));
+  const max = Math.ceil(peak / 4) * 4;
+  const y = (v) => T + ph - (v / max) * ph;
+  const slot = pw / daily.length, bw = Math.max(4, Math.min(36, slot * 0.6));
+  const ticks = [0, max / 4, max / 2, (max * 3) / 4, max];
+  const every = daily.length <= 10 ? 1 : daily.length <= 31 ? 5 : 10;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="日ごとの訪問者数">`;
+  s += `<g class="grid">${ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/>`).join("")}</g><g class="axis">`;
+  s += ticks.map((t) => `<text x="${L - 6}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join("");
+  daily.forEach((d, i) => {
+    if ((daily.length - 1 - i) % every === 0) s += `<text x="${L + slot * i + slot / 2}" y="${H - 8}" text-anchor="middle">${Number(d.date.slice(5, 7))}/${Number(d.date.slice(8))}</text>`;
+  });
+  s += `</g><line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="#bbb"/>`;
+  daily.forEach((d, i) => {
+    const x = L + slot * i + (slot - bw) / 2, h = y(0) - y(d.visitors);
+    if (d.visitors) {
+      const r = Math.min(4, h, bw / 2), top = y(d.visitors);
+      s += `<path d="M${x},${y(0)}V${top + r}Q${x},${top} ${x + r},${top}H${x + bw - r}Q${x + bw},${top} ${x + bw},${top + r}V${y(0)}Z" fill="var(--accent)"/>`;
+    }
+    s += `<rect class="hit" data-i="${i}" x="${L + slot * i}" y="${T}" width="${slot}" height="${ph}"/>`;
+  });
+  s += `</svg><div class="tip" hidden></div>`;
+  const el = document.getElementById("chart");
+  el.innerHTML = s;
+  const tip = el.querySelector(".tip");
+  el.querySelectorAll(".hit").forEach((h) => h.addEventListener("mouseenter", () => {
+    const d = daily[Number(h.dataset.i)];
+    tip.innerHTML = `<b>${d.date}</b><br>訪問者 ${d.visitors}人・ページビュー ${d.pv}・問題 ${d.problems}回`;
+    const box = el.getBoundingClientRect(), r = h.getBoundingClientRect();
+    tip.style.left = `${Math.min(Math.max(r.left + r.width / 2 - box.left, 110), box.width - 110)}px`;
+    tip.style.top = `${r.top - box.top + 50}px`;
+    tip.hidden = false;
+  }));
+  el.querySelector("svg").addEventListener("mouseleave", () => { tip.hidden = true; });
+}
+
+async function load() {
+  const d = await fetch(`api/accesslog?days=${days}`).then((r) => r.json());
+  const t = d.totals;
+  document.getElementById("tiles").innerHTML = [
+    ["訪問者", t.visitors], ["ページビュー", t.pv], ["問題を開いた回数", t.problems], ["ボット（除外）", t.bots],
+  ].map(([k, v]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+  chart(d.daily);
+  document.getElementById("problems").innerHTML = table(d.problems, (k) => titles[k] || k);
+  document.getElementById("pages").innerHTML = table(d.pages);
+  document.getElementById("devices").innerHTML = table(d.devices);
+  document.getElementById("referrers").innerHTML = table(d.referrers);
+  document.getElementById("notFound").innerHTML = table(d.notFound);
+  const st = d.stored.count ? `保存済み：${d.stored.from} 〜 ${d.stored.to}（${d.stored.count}日分）` : "まだ ログを取得していません";
+  document.getElementById("status").textContent = `${st}${d.lastFetch ? `・最終取得 ${fmtTime(d.lastFetch.fetchedAt)}` : ""}`;
+}
+
+document.querySelectorAll(".seg button").forEach((b) => {
+  b.onclick = () => {
+    days = Number(b.dataset.days);
+    document.querySelectorAll(".seg button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    load();
+  };
+});
+
+document.getElementById("fetch").onclick = async (e) => {
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  document.getElementById("status").textContent = "取得しています…";
+  try {
+    const r = await fetch("api/accesslog/fetch", { method: "POST" });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    await load();
+    document.getElementById("status").textContent += `（新しく ${j.added}行）`;
+  } catch (err) {
+    document.getElementById("status").textContent = `取得できませんでした：${err.message}`;
+  }
+  btn.disabled = false;
+};
+
+load();
+</script>
+</body>
+</html>

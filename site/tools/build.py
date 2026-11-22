@@ -127,9 +127,69 @@ def math_010():
     return [[y, x] for x in range(0, 9) for y in range(0, 9) if x + y == 8 and 30 * x + 50 * y == 300]
 
 
-SOLVERS = {"math/001": math_001, "math/002": math_002, "math/003": math_003, "math/004": math_004,
-           "math/005": math_005, "math/006": math_006, "math/007": math_007, "math/008": math_008,
-           "math/009": math_009, "math/010": math_010}
+def math_011():
+    # 公園を通る道 1400m、川ぞい 950m、家→公園 600m。(1) 公園→学校 (2) 行き公園・帰り川ぞい
+    return [[x, 1400 + 950] for x in range(0, 1401) if 600 + x == 1400]
+
+
+def math_012():
+    # 30人が 4人がけの長いすに。(1) いる長いすの数 (2) さいごの長いすの人数
+    n = min(k for k in range(1, 31) if 4 * k >= 30)
+    return [[n, 30 - 4 * (n - 1)]]
+
+
+def math_013():
+    # ある数に 6 をたしたら 15。正しくは 6 をかける
+    return [[n, n * 6] for n in range(0, 100) if n + 6 == 15]
+
+
+def math_014():
+    # 30cm のはり金で (1) 正三角形 (2) ちがう辺 8cm の二等辺三角形
+    return [[e, s] for e in range(1, 31) for s in range(1, 31) if 3 * e == 30 and 2 * s + 8 == 30]
+
+
+def math_015():
+    # 0.1L を 1 として整数で。やかん 15、水とう 8 が 2つ
+    left = 15 - 8
+    return [[left / 10, (8 - left) / 10]]
+
+
+def math_016():
+    # 1辺 n こで正方形のまわりにならべる。実際に格子を数える
+    def count(n):
+        return sum(1 for i in range(n) for j in range(n) if i in (0, n - 1) or j in (0, n - 1))
+    return [[count(5), count(10)]]
+
+
+def math_017():
+    # 3・0・7・1・5 で 5けた。(1) 最大 (2) 最小 (3) 50000 にいちばん近い
+    from itertools import permutations
+    ns = [int("".join(p)) for p in permutations("30715") if p[0] != "0"]
+    best = min(abs(n - 50000) for n in ns)
+    near = [n for n in ns if abs(n - 50000) == best]
+    return [[max(ns), min(ns), x] for x in near]
+
+
+def math_018():
+    # ア6 × 7 ＝ イ2ウ
+    return [[a, p] for a in range(1, 10) for p in [(10 * a + 6) * 7] if 100 <= p <= 999 and p // 10 % 10 == 2]
+
+
+def math_019():
+    # 8月1日が日曜日、31日まで。(3) は選択肢 ① 月 ② 火 ③ 水 ④ 木
+    week = "日月火水木金土"
+    sundays = [d for d in range(1, 32) if (d - 1) % 7 == 0]
+    sep1 = week[31 % 7]
+    return [[len(sundays), max(sundays), "月火水木".index(sep1) + 1]]
+
+
+def math_020():
+    # 32人。犬 12、ねこ 9、両方 4
+    return [[d, n] for d in range(33) for c in range(33) for n in range(33)
+            if d + 4 == 12 and c + 4 == 9 and d + c + 4 + n == 32]
+
+
+SOLVERS = {f"math/{i:03d}": globals()[f"math_{i:03d}"] for i in range(1, 21)}
 
 
 def texts(p, for_child=True):
@@ -245,7 +305,7 @@ def main():
         # 公開用：下書きの問題と開発用ファイルを除いて dist/ に書き出す
         if DIST.exists():
             shutil.rmtree(DIST)
-        shutil.copytree(SITE, DIST, ignore=shutil.ignore_patterns("tools", "data", "review.html", ".DS_Store"))
+        shutil.copytree(SITE, DIST, ignore=shutil.ignore_patterns("tools", "data", "review.html", "access.html", ".DS_Store"))
         published = {s: [x for x in index[s] if x["status"] == "published"] for s in SUBJECTS}
         for s in SUBJECTS:
             (DIST / "data" / s).mkdir(parents=True, exist_ok=True)

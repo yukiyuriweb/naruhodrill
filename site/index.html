@@ -7,6 +7,13 @@
 <title>なるほドリル｜考えて、なるほど。小3の算数・国語</title>
 <meta name="description" content="小学3年生向けの、考える力を育てる算数・国語の問題集。ヒントと解説つき。登録不要・無料。">
 <link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f3c56b">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-title" content="なるほドリル">
+<script src="js/pwa.js" defer></script>
 <style>
   .tagline { font-size: 14px; font-weight: normal; color: var(--muted); margin-left: 6px; }
   .lead { margin: 0 0 12px; color: var(--muted); line-height: 1.7; }
@@ -28,6 +35,7 @@
 <div class="page">
   <div class="topbar">
     <h1><a href="./" id="siteName"></a> <span class="tagline">考えて、なるほど。</span></h1>
+    <a class="btn" href="dashboard.html">がんばり</a>
     <a class="btn" href="records.html">きろく</a>
     <a class="btn" href="about.html">このサイトについて</a>
   </div>
@@ -44,7 +52,7 @@ import { allAttempts } from "./js/db.js";
 
 document.getElementById("siteName").textContent = SITE_NAME;
 // 開発中（localhost）は、作問の確認ページへのリンクを出す
-if (IS_LOCAL) document.querySelector(".topbar").insertAdjacentHTML("beforeend", `<a class="btn" href="review.html">問題の確認</a>`);
+if (IS_LOCAL) document.querySelector(".topbar").insertAdjacentHTML("beforeend", `<a class="btn" href="review.html">問題の確認</a><a class="btn" href="access.html">アクセス解析</a>`);
 const params = new URLSearchParams(location.search);
 const subject = SUBJECTS[params.get("s")] ? params.get("s") : "math";
 

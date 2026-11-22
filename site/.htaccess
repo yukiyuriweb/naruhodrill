@@ -7,10 +7,11 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 Options -Indexes
 AddType text/javascript .js
 AddType application/json .json
+AddType application/manifest+json .webmanifest
 
 <IfModule mod_headers.c>
   # 更新がすぐ届くように、HTML・JS・CSS・問題データは毎回サーバーに確認させる（変わっていなければ 304 で軽い）
-  <FilesMatch "\.(html|js|css|json)$">
+  <FilesMatch "\.(html|js|css|json|webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
   <FilesMatch "\.(svg|png)$">

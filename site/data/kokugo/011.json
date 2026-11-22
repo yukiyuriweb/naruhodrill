@@ -1,0 +1,161 @@
+{
+  "id": "011",
+  "subject": "kokugo",
+  "status": "published",
+  "title": "ローマ字の きまり",
+  "lv": "Lv.2",
+  "area": "言葉（ローマ字）",
+  "hint_interval_min": 3,
+  "layout": "reading",
+  "body": [
+    "ローマ字の 書き方の きまりを 考えましょう。"
+  ],
+  "figure": null,
+  "parts": [
+    {
+      "label": "(1)",
+      "prompt": "kitte と 書いて あります。何と 読みますか。ひらがなで 書こう。",
+      "unit": "",
+      "answer": {
+        "type": "text",
+        "value": "きって",
+        "accept": [
+          "切手"
+        ]
+      }
+    },
+    {
+      "label": "(2)",
+      "prompt": "「きねん」と 読むのは どれですか。",
+      "unit": "",
+      "choices": [
+        {
+          "value": "1",
+          "label": "① kinen"
+        },
+        {
+          "value": "2",
+          "label": "② kin'en"
+        },
+        {
+          "value": "3",
+          "label": "③ kinnen"
+        },
+        {
+          "value": "4",
+          "label": "④ kineen"
+        }
+      ],
+      "answer": {
+        "type": "choice",
+        "value": "1"
+      }
+    },
+    {
+      "label": "(3)",
+      "prompt": "「ほんや」を 正しく 書いて いるのは どれですか。",
+      "unit": "",
+      "choices": [
+        {
+          "value": "1",
+          "label": "① honya"
+        },
+        {
+          "value": "2",
+          "label": "② hon'ya"
+        },
+        {
+          "value": "3",
+          "label": "③ honnya"
+        },
+        {
+          "value": "4",
+          "label": "④ honyya"
+        }
+      ],
+      "answer": {
+        "type": "choice",
+        "value": "2"
+      }
+    },
+    {
+      "label": "(4)",
+      "prompt": "「でんわ」を 正しく 書いて いるのは どれですか。",
+      "unit": "",
+      "choices": [
+        {
+          "value": "1",
+          "label": "① denwa"
+        },
+        {
+          "value": "2",
+          "label": "② dennwa"
+        },
+        {
+          "value": "3",
+          "label": "③ den'uwa"
+        },
+        {
+          "value": "4",
+          "label": "④ denwaa"
+        }
+      ],
+      "answer": {
+        "type": "choice",
+        "value": "1"
+      }
+    }
+  ],
+  "hints": [
+    "小さい「っ」は、次の 文字の さいしょの アルファベットを 2つ ならべて 書くよ。",
+    "「ん」は n と 書く。でも、n の すぐ 後に a・i・u・e・o や y が 来ると、読み方が かわって しまうね。",
+    "kinen は「き・ね・ん」と「きん・えん」の どちらに 読めるかな？ そのために「'」（アポストロフィ）を 使うよ。"
+  ],
+  "mistakes": [
+    {
+      "part": 0,
+      "value": "きて",
+      "message": "t が 2つ ならんで いるね。小さい「っ」が 入るよ。"
+    },
+    {
+      "part": 1,
+      "value": "2",
+      "message": "kin'en は「きん・えん」。「'」で、n と e を 分けて 読むんだよ。"
+    },
+    {
+      "part": 1,
+      "value": "3",
+      "message": "kinnen は「きんねん」に なるよ。"
+    },
+    {
+      "part": 2,
+      "value": "1",
+      "message": "honya だと「ほにゃ」と 読めて しまうね。"
+    },
+    {
+      "part": 2,
+      "value": "3",
+      "message": "honnya だと「ほんにゃ」に なって しまうよ。"
+    },
+    {
+      "part": 3,
+      "value": "2",
+      "message": "「ん」は n 1つで 書くよ。nn は「ん」の 後に な行が 来る ときだね。"
+    },
+    {
+      "part": 3,
+      "value": "3",
+      "message": "「わ」は wa と 書くよ。"
+    }
+  ],
+  "explanation": [
+    "(1) 小さい「っ」は、次の 文字の さいしょの アルファベットを 2つ 重ねて 書きます。kitte は「きって」です。",
+    "(2)「きねん」は ki・ne・n で kinen。kin'en は「きんえん」と 読みます。答えは ① です。",
+    "(3)「ん」の 後に y が 来る ときは、n の 後に「'」を つけて hon'ya と 書きます。honya だと「ほにゃ」と 読めて しまいます。答えは ② です。",
+    "(4)「ん」の 後が w なので、読みまちがえる ことは なく、「'」は いりません。denwa です。答えは ① です。"
+  ],
+  "parent_note": [
+    "「ん」の後に a・i・u・e・o・y が来るときだけ「'」で区切る、というきまりを、読みまちがいが起きるかどうかから考える問題です。",
+    "パソコンのキーボードで「ん」を nn と打つ習慣があると(4)で dennwa を選びやすいので、キーボードの入力とローマ字の書き方はちがうことを伝えてください。"
+  ]
+}

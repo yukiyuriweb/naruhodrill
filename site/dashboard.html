@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>がんばり - なるほドリル</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f3c56b">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-title" content="なるほドリル">
+<script src="js/pwa.js" defer></script>
+<style>
+  :root { --math: #2a7de1; --kokugo: #e0703a; }
+  .layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; align-items: start; }
+  @media (max-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .card h2 { font-size: 18px; margin: 0; flex: 1; }
+  .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .legend { display: flex; gap: 14px; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .legend i, .chip i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: 0; }
+  .sw-math { background: var(--math); }
+  .sw-kokugo { background: var(--kokugo); }
+
+  /* カレンダー */
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .cal .dow { text-align: center; font-size: 13px; color: var(--muted); padding-bottom: 2px; }
+  .cal .dow.sun { color: var(--ng); }
+  .cal .dow.sat { color: var(--accent); }
+  .day { min-height: 62px; border: 1px solid var(--line); border-radius: 8px; padding: 3px 4px; background: #fff; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px; color: var(--fg); }
+  .day.blank { visibility: hidden; }
+  .day .d { font-size: 13px; color: var(--muted); }
+  .day.done { background: var(--warm-soft); border-color: var(--warm); }
+  .day.today .d { font-weight: bold; color: var(--fg); }
+  .day.today { outline: 2px solid var(--fg); outline-offset: -2px; }
+  .day.sel { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+  .chip { font-size: 13px; line-height: 1.2; white-space: nowrap; }
+  .chip b { font-size: 15px; }
+  .month { font-weight: bold; font-size: 18px; min-width: 7em; text-align: center; }
+  #dayList { margin-top: 12px; }
+  #dayList h3 { font-size: 16px; margin: 0 0 6px; }
+  #dayList ul { list-style: none; margin: 0; padding: 0; }
+  #dayList li { padding: 4px 0; border-bottom: 1px dashed var(--line); display: flex; gap: 8px; }
+  #dayList li:last-child { border-bottom: 0; }
+  #dayList .m { font-weight: bold; width: 1.2em; text-align: center; }
+
+  /* グラフ */
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { font: inherit; font-size: 15px; padding: 6px 14px; border: 0; background: var(--card); color: var(--fg); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; font-weight: bold; }
+  .totals { font-size: 15px; margin-bottom: 6px; }
+  .totals b { font-size: 22px; }
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart .grid line { stroke: #ececec; }
+  .chart .axis text { fill: var(--muted); font-size: 12px; }
+  .chart .hit { fill: transparent; cursor: pointer; }
+  .chart .hit:hover, .chart .hit.on { fill: rgba(0, 0, 0, 0.05); }
+  .tip { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.12); white-space: nowrap; transform: translate(-50%, -100%); }
+  .tip div { display: flex; align-items: center; gap: 4px; }
+  details { margin-top: 10px; font-size: 14px; }
+  details table { border-collapse: collapse; margin-top: 6px; }
+  details td, details th { border: 1px solid var(--line); padding: 2px 8px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <h1><a href="./" id="siteName"></a></h1>
+    <a class="btn" href="./">もんだい</a>
+    <a class="btn" href="records.html">きろく</a>
+  </div>
+  <div class="layout">
+    <section class="card">
+      <div class="card-head">
+        <h2>カレンダー</h2>
+        <button class="btn" id="prev" aria-label="前の月">◀</button>
+        <span class="month" id="monthLabel"></span>
+        <button class="btn" id="next" aria-label="次の月">▶</button>
+      </div>
+      <div class="legend"><span><i class="sw-math"></i>さんすう</span><span><i class="sw-kokugo"></i>こくご</span><span>（といた 回数）</span></div>
+      <div class="cal" id="cal"></div>
+      <div id="dayList"></div>
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <h2>といた 数</h2>
+        <div class="seg" role="group" aria-label="きかん">
+          <button data-days="7" aria-pressed="true">1しゅうかん</button>
+          <button data-days="30" aria-pressed="false">1か月</button>
+        </div>
+      </div>
+      <div class="totals" id="totals"></div>
+      <div class="legend"><span><i class="sw-math"></i>さんすう</span><span><i class="sw-kokugo"></i>こくご</span></div>
+      <div class="chart" id="chart"></div>
+      <details><summary>数の ひょうで 見る</summary><div id="table"></div></details>
+    </section>
+  </div>
+  <footer class="site">記録はこの端末のブラウザの中にだけ保存されています。問題を 1回 出すごとに 1回と 数えます（同じ問題を 2回といたら 2回）。</footer>
+</div>
+<script type="module">
+import { SITE_NAME, SUBJECTS, RESULT_MARK, fmt } from "./js/common.js";
+import { allAttempts } from "./js/db.js";
+
+document.getElementById("siteName").textContent = SITE_NAME;
+const KEYS = ["math", "kokugo"];
+const WEEK = "日月火水木金土";
+
+// 日ごとの回数 { "2026-11-22": { math: 2, kokugo: 1, list: [...] } }
+const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const attempts = await allAttempts().catch(() => []);
+const byDay = {};
+for (const a of attempts) {
+  const k = dayKey(new Date(a.submittedAt));
+  const v = (byDay[k] ||= { math: 0, kokugo: 0, list: [] });
+  if (a.subject in v) v[a.subject]++;
+  v.list.push(a);
+}
+const countOf = (k) => byDay[k] || { math: 0, kokugo: 0, list: [] };
+
+// ---- カレンダー ----
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+// 前後に動けるのは、記録のある月と今月だけ（記録のない月はとばす）
+const months = [...new Set([...Object.keys(byDay), dayKey(today)].map((k) => k.slice(0, 7)))].sort();
+let monthIdx = months.indexOf(dayKey(today).slice(0, 7));
+let view;
+let selected = dayKey(today);
+
+function renderCalendar() {
+  const [vy, vm] = months[monthIdx].split("-").map(Number);
+  view = new Date(vy, vm - 1, 1);
+  document.getElementById("prev").disabled = monthIdx === 0;
+  document.getElementById("next").disabled = monthIdx === months.length - 1;
+  document.getElementById("monthLabel").textContent = `${view.getFullYear()}年 ${view.getMonth() + 1}月`;
+  const cal = document.getElementById("cal");
+  cal.innerHTML = [...WEEK].map((w, i) => `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("");
+  for (let i = 0; i < view.getDay(); i++) cal.insertAdjacentHTML("beforeend", `<div class="day blank"></div>`);
+  const last = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+  for (let d = 1; d <= last; d++) {
+    const date = new Date(view.getFullYear(), view.getMonth(), d);
+    const k = dayKey(date);
+    const c = countOf(k);
+    const btn = document.createElement("button");
+    btn.className = `day${c.list.length ? " done" : ""}${k === dayKey(today) ? " today" : ""}${k === selected ? " sel" : ""}`;
+    btn.innerHTML = `<span class="d">${d}</span>`
+      + KEYS.filter((s) => c[s]).map((s) => `<span class="chip"><i class="sw-${s}"></i><b>${c[s]}</b></span>`).join("");
+    btn.setAttribute("aria-label", `${view.getMonth() + 1}月${d}日 さんすう${c.math}回 こくご${c.kokugo}回`);
+    btn.onclick = () => { selected = k; renderCalendar(); };
+    cal.appendChild(btn);
+  }
+  renderDayList();
+}
+
+function renderDayList() {
+  const el = document.getElementById("dayList");
+  const [y, m, d] = selected.split("-").map(Number);
+  const c = countOf(selected);
+  const title = `${m}月${d}日（${WEEK[new Date(y, m - 1, d).getDay()]}）`;
+  if (!c.list.length) {
+    el.innerHTML = `<h3>${title}</h3><p class="muted">この日は まだ といて いないよ。</p>`;
+    return;
+  }
+  el.innerHTML = `<h3>${title}　さんすう ${c.math}回・こくご ${c.kokugo}回</h3><ul></ul>`;
+  const ul = el.querySelector("ul");
+  for (const a of c.list.slice().reverse()) {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="m mark-${a.result}">${RESULT_MARK[a.result] || ""}</span><span class="t"></span><span class="muted">${fmt(a.submittedAt).split(" ")[1]}</span>`;
+    li.querySelector(".t").textContent = `${SUBJECTS[a.subject] || a.subject} ${Number(a.problemId)}. ${a.title}`;
+    ul.appendChild(li);
+  }
+}
+
+document.getElementById("prev").onclick = () => { if (monthIdx > 0) { monthIdx--; renderCalendar(); } };
+document.getElementById("next").onclick = () => { if (monthIdx < months.length - 1) { monthIdx++; renderCalendar(); } };
+
+// ---- 積み上げ棒グラフ ----
+let days = 7;
+
+function lastDays(n) {
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - (n - 1 - i));
+    return { date: d, key: dayKey(d), ...countOf(dayKey(d)) };
+  });
+}
+
+// 上の角だけ丸い棒（積み上げのいちばん上に使う）
+function topRounded(x, y, w, h, r) {
+  r = Math.min(r, h, w / 2);
+  return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+}
+
+function niceMax(v) {
+  if (v <= 4) return 4;
+  const step = Math.ceil(v / 4);
+  return step * 4;
+}
+
+function renderChart() {
+  const data = lastDays(days);
+  const W = 560, H = 300, L = 30, R = 8, T = 12, B = 34;
+  const pw = W - L - R, ph = H - T - B;
+  const max = niceMax(Math.max(...data.map((d) => d.math + d.kokugo)));
+  const y = (v) => T + ph - (v / max) * ph;
+  const slot = pw / data.length;
+  const bw = Math.max(6, Math.min(40, slot * 0.6));
+  const ticks = [0, max / 4, max / 2, (max * 3) / 4, max];
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="直近${days}日の といた 数">`;
+  svg += `<g class="grid">${ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"/>`).join("")}</g>`;
+  svg += `<g class="axis">${ticks.map((t) => `<text x="${L - 6}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join("")}`;
+  data.forEach((d, i) => {
+    const cx = L + slot * i + slot / 2;
+    const show = days === 7 || i === data.length - 1 || (data.length - 1 - i) % 5 === 0;
+    if (show) {
+      svg += `<text x="${cx}" y="${H - B + 16}" text-anchor="middle">${d.date.getMonth() + 1}/${d.date.getDate()}</text>`;
+      if (days === 7) svg += `<text x="${cx}" y="${H - B + 30}" text-anchor="middle">${WEEK[d.date.getDay()]}</text>`;
+    }
+  });
+  svg += `</g>`;
+  svg += `<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="#bbb"/>`;
+
+  data.forEach((d, i) => {
+    const x = L + slot * i + (slot - bw) / 2;
+    let base = 0;
+    const segs = KEYS.filter((s) => d[s] > 0);
+    segs.forEach((s, j) => {
+      const y0 = y(base), y1 = y(base + d[s]);
+      const gap = j > 0 ? 2 : 0; // 積み上げの間に 2px のすきま
+      const h = y0 - y1 - gap;
+      const top = j === segs.length - 1;
+      svg += top
+        ? `<path d="${topRounded(x, y1, bw, h, 4)}" fill="var(--${s})"/>`
+        : `<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="var(--${s})"/>`;
+      base += d[s];
+    });
+    svg += `<rect class="hit" data-i="${i}" x="${L + slot * i}" y="${T}" width="${slot}" height="${ph}"/>`;
+  });
+  svg += `</svg><div class="tip" hidden></div>`;
+
+  const chart = document.getElementById("chart");
+  chart.innerHTML = svg;
+  const tip = chart.querySelector(".tip");
+  const showTip = (el) => {
+    chart.querySelectorAll(".hit.on").forEach((h) => h.classList.remove("on"));
+    el.classList.add("on");
+    const d = data[Number(el.dataset.i)];
+    tip.innerHTML = `<div><b>${d.date.getMonth() + 1}/${d.date.getDate()}（${WEEK[d.date.getDay()]}）</b></div>`
+      + `<div><i class="sw-math" style="display:inline-block;width:10px;height:10px;border-radius:3px"></i>さんすう ${d.math}回</div>`
+      + `<div><i class="sw-kokugo" style="display:inline-block;width:10px;height:10px;border-radius:3px"></i>こくご ${d.kokugo}回</div>`;
+    const box = chart.getBoundingClientRect(), r = el.getBoundingClientRect();
+    tip.style.left = `${Math.min(Math.max(r.left + r.width / 2 - box.left, 70), box.width - 70)}px`;
+    tip.style.top = `${Math.max(r.top - box.top + 40, 60)}px`;
+    tip.hidden = false;
+  };
+  chart.querySelectorAll(".hit").forEach((h) => {
+    h.addEventListener("mouseenter", () => showTip(h));
+    h.addEventListener("click", () => showTip(h));
+  });
+  chart.querySelector("svg").addEventListener("mouseleave", () => {
+    tip.hidden = true;
+    chart.querySelectorAll(".hit.on").forEach((h) => h.classList.remove("on"));
+  });
+
+  const sum = (s) => data.reduce((t, d) => t + d[s], 0);
+  const period = days === 7 ? "この 1しゅうかん" : "この 1か月（30日）";
+  document.getElementById("totals").innerHTML =
+    `${period}：さんすう <b>${sum("math")}</b>回・こくご <b>${sum("kokugo")}</b>回・あわせて <b>${sum("math") + sum("kokugo")}</b>回`;
+
+  document.getElementById("table").innerHTML = `<table><tr><th>日</th><th>さんすう</th><th>こくご</th></tr>`
+    + data.slice().reverse().map((d) => `<tr><td>${d.date.getMonth() + 1}/${d.date.getDate()}（${WEEK[d.date.getDay()]}）</td><td>${d.math}</td><td>${d.kokugo}</td></tr>`).join("")
+    + `</table>`;
+}
+
+document.querySelectorAll(".seg button").forEach((b) => {
+  b.onclick = () => {
+    days = Number(b.dataset.days);
+    document.querySelectorAll(".seg button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderChart();
+  };
+});
+
+renderCalendar();
+renderChart();
+</script>
+</body>
+</html>
