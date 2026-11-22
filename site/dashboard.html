@@ -108,9 +108,11 @@ import { SITE_NAME, SUBJECTS, RESULT_MARK, fmt, loadIndex, visibleSubjects } fro
 import { allAttempts } from "./js/db.js";
 
 document.getElementById("siteName").textContent = SITE_NAME;
-// 教科は、問題のあるものだけ。問題の一覧が読めないときは、さんすう・こくご
-const index = await loadIndex().catch(() => null);
-const KEYS = index ? visibleSubjects(index) : ["math", "kokugo"];
+// 教科は、問題のあるものと、記録のあるもの（あとで下書きにもどした教科の記録も数える）。
+// 問題の一覧が読めないときは、さんすう・こくご
+const [index, attempts] = await Promise.all([loadIndex().catch(() => null), allAttempts().catch(() => [])]);
+const shown = index ? visibleSubjects(index) : ["math", "kokugo"];
+const KEYS = Object.keys(SUBJECTS).filter((s) => shown.includes(s) || attempts.some((a) => a.subject === s));
 const legend = KEYS.map((s) => `<span><i class="sw-${s}"></i>${SUBJECTS[s]}</span>`).join("");
 document.getElementById("legendCal").innerHTML = `${legend}<span>（といた 回数）</span>`;
 document.getElementById("legendChart").innerHTML = legend;
@@ -121,7 +123,6 @@ const WEEK = "日月火水木金土";
 
 // 日ごとの回数 { "2026-11-22": { math: 2, kokugo: 1, ..., list: [...] } }
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-const attempts = await allAttempts().catch(() => []);
 const byDay = {};
 for (const a of attempts) {
   const k = dayKey(new Date(a.submittedAt));
