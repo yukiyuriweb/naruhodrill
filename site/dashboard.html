@@ -124,10 +124,17 @@ const countOf = (k) => byDay[k] || { math: 0, kokugo: 0, list: [] };
 // ---- カレンダー ----
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-let view = new Date(today.getFullYear(), today.getMonth(), 1);
+// 前後に動けるのは、記録のある月と今月だけ（記録のない月はとばす）
+const months = [...new Set([...Object.keys(byDay), dayKey(today)].map((k) => k.slice(0, 7)))].sort();
+let monthIdx = months.indexOf(dayKey(today).slice(0, 7));
+let view;
 let selected = dayKey(today);
 
 function renderCalendar() {
+  const [vy, vm] = months[monthIdx].split("-").map(Number);
+  view = new Date(vy, vm - 1, 1);
+  document.getElementById("prev").disabled = monthIdx === 0;
+  document.getElementById("next").disabled = monthIdx === months.length - 1;
   document.getElementById("monthLabel").textContent = `${view.getFullYear()}年 ${view.getMonth() + 1}月`;
   const cal = document.getElementById("cal");
   cal.innerHTML = [...WEEK].map((w, i) => `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("");
@@ -167,8 +174,8 @@ function renderDayList() {
   }
 }
 
-document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); renderCalendar(); };
-document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); renderCalendar(); };
+document.getElementById("prev").onclick = () => { if (monthIdx > 0) { monthIdx--; renderCalendar(); } };
+document.getElementById("next").onclick = () => { if (monthIdx < months.length - 1) { monthIdx++; renderCalendar(); } };
 
 // ---- 積み上げ棒グラフ ----
 let days = 7;
