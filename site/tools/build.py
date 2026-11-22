@@ -305,7 +305,7 @@ def main():
         # 公開用：下書きの問題と開発用ファイルを除いて dist/ に書き出す
         if DIST.exists():
             shutil.rmtree(DIST)
-        shutil.copytree(SITE, DIST, ignore=shutil.ignore_patterns("tools", "data", "review.html", ".DS_Store"))
+        shutil.copytree(SITE, DIST, ignore=shutil.ignore_patterns("tools", "data", "review.html", "access.html", ".DS_Store"))
         published = {s: [x for x in index[s] if x["status"] == "published"] for s in SUBJECTS}
         for s in SUBJECTS:
             (DIST / "data" / s).mkdir(parents=True, exist_ok=True)

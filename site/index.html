@@ -52,7 +52,7 @@ import { allAttempts } from "./js/db.js";
 
 document.getElementById("siteName").textContent = SITE_NAME;
 // 開発中（localhost）は、作問の確認ページへのリンクを出す
-if (IS_LOCAL) document.querySelector(".topbar").insertAdjacentHTML("beforeend", `<a class="btn" href="review.html">問題の確認</a>`);
+if (IS_LOCAL) document.querySelector(".topbar").insertAdjacentHTML("beforeend", `<a class="btn" href="review.html">問題の確認</a><a class="btn" href="access.html">アクセス解析</a>`);
 const params = new URLSearchParams(location.search);
 const subject = SUBJECTS[params.get("s")] ? params.get("s") : "math";
 
