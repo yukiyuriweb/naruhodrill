@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 406 292" width="406" height="292">
+  <g font-family="sans-serif" fill="#25364a" stroke-linecap="round" stroke-linejoin="round">
+    <text x="203" y="23" font-size="19" text-anchor="middle">もとの 絵</text>
+    <rect x="155" y="30" width="96" height="64" fill="#fff7e4" stroke="#25364a" stroke-width="2"/>
+    <path d="M187 30 v64 M219 30 v64 M155 62 h96" fill="none" stroke="#73879a" stroke-width="1"/>
+    <path d="M162 46 H180 m-6 -5 l6 5 l-6 5" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <path d="M195 86 L211 70" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <circle cx="235" cy="78" r="7" fill="none" stroke="#25364a" stroke-width="2"/>
+    <text x="116" y="122" font-size="19" text-anchor="middle">ア</text>
+    <rect x="68" y="129" width="96" height="64" fill="#fff7e4" stroke="#25364a" stroke-width="2"/>
+    <path d="M100 129 v64 M132 129 v64 M68 161 h96" fill="none" stroke="#73879a" stroke-width="1"/>
+    <path d="M139 145 H157 m-6 -5 l6 5 l-6 5" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <path d="M108 185 L124 169" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <circle cx="84" cy="177" r="7" fill="none" stroke="#25364a" stroke-width="2"/>
+    <text x="290" y="122" font-size="19" text-anchor="middle">イ</text>
+    <rect x="242" y="129" width="96" height="64" fill="#fff7e4" stroke="#25364a" stroke-width="2"/>
+    <path d="M274 129 v64 M306 129 v64 M242 161 h96" fill="none" stroke="#73879a" stroke-width="1"/>
+    <path d="M267 145 H249 m6 -5 l-6 5 l6 5" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <path d="M298 185 L282 169" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <circle cx="322" cy="177" r="7" fill="none" stroke="#25364a" stroke-width="2"/>
+    <text x="116" y="214" font-size="19" text-anchor="middle">ウ</text>
+    <rect x="68" y="221" width="96" height="64" fill="#fff7e4" stroke="#25364a" stroke-width="2"/>
+    <path d="M100 221 v64 M132 221 v64 M68 253 h96" fill="none" stroke="#73879a" stroke-width="1"/>
+    <path d="M157 237 H139 m6 -5 l-6 5 l6 5" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <path d="M124 277 L108 261" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <circle cx="84" cy="269" r="7" fill="none" stroke="#25364a" stroke-width="2"/>
+    <text x="290" y="214" font-size="19" text-anchor="middle">エ</text>
+    <rect x="242" y="221" width="96" height="64" fill="#fff7e4" stroke="#25364a" stroke-width="2"/>
+    <path d="M274 221 v64 M306 221 v64 M242 253 h96" fill="none" stroke="#73879a" stroke-width="1"/>
+    <path d="M331 269 H313 m6 -5 l-6 5 l6 5" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <path d="M282 245 L298 229" fill="none" stroke="#25364a" stroke-width="2.5"/>
+    <circle cx="258" cy="237" r="7" fill="none" stroke="#25364a" stroke-width="2"/>
+  </g>
+</svg>

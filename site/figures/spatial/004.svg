@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" width="420" height="300">
+  <g font-family="sans-serif" fill="#25364a" stroke-linecap="round" stroke-linejoin="round">
+    <text x="210" y="24" font-size="19" text-anchor="middle">真上から</text>
+    <rect x="153" y="35" width="38" height="38" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="172" y="61" font-size="19" text-anchor="middle">ア</text>
+    <rect x="191" y="35" width="38" height="38" fill="#fff" stroke="#73879a" stroke-width="2"/>
+    <rect x="229" y="35" width="38" height="38" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="248" y="61" font-size="19" text-anchor="middle">イ</text>
+    <rect x="153" y="73" width="38" height="38" fill="#fff" stroke="#73879a" stroke-width="2"/>
+    <rect x="191" y="73" width="38" height="38" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="210" y="99" font-size="19" text-anchor="middle">ウ</text>
+    <rect x="229" y="73" width="38" height="38" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="248" y="99" font-size="19" text-anchor="middle">エ</text>
+    <rect x="153" y="111" width="38" height="38" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="172" y="137" font-size="19" text-anchor="middle">オ</text>
+    <rect x="191" y="111" width="38" height="38" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="210" y="137" font-size="19" text-anchor="middle">カ</text>
+    <rect x="229" y="111" width="38" height="38" fill="#fff" stroke="#73879a" stroke-width="2"/>
+    <text x="125" y="62" font-size="15" text-anchor="middle">おく</text>
+    <text x="125" y="138" font-size="15" text-anchor="middle">手前</text>
+    <text x="210" y="169" font-size="16" text-anchor="middle">前</text>
+    <text x="301" y="102" font-size="16" text-anchor="middle">右</text>
+    <path d="M292 91 H275 l6 -4 m-6 4 l6 4" fill="none" stroke="#73879a" stroke-width="2"/>
+    <text x="103" y="193" font-size="19" text-anchor="middle">前から</text>
+    <path d="M58 276 h90" fill="none" stroke="#25364a" stroke-width="2"/>
+    <rect x="67" y="252" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="67" y="228" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="91" y="252" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="91" y="228" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="115" y="252" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="115" y="228" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="115" y="204" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="310" y="193" font-size="19" text-anchor="middle">右から</text>
+    <path d="M265 276 h90" fill="none" stroke="#25364a" stroke-width="2"/>
+    <rect x="274" y="252" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="298" y="252" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="298" y="228" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="298" y="204" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="322" y="252" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <rect x="322" y="228" width="24" height="24" fill="#e0f0ff" stroke="#73879a" stroke-width="2"/>
+    <text x="286" y="296" font-size="15" text-anchor="middle">手前</text>
+    <text x="334" y="296" font-size="15" text-anchor="middle">おく</text>
+  </g>
+</svg>

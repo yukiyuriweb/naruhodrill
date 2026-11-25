@@ -16,6 +16,7 @@ import re
 import shutil
 import sys
 import unicodedata
+from itertools import combinations, permutations, product
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parent.parent
@@ -239,6 +240,48 @@ def logic_003():
     return [[shortest((0, 0), 0)]]
 
 
+def logic_004():
+    # 8この石を、左の皿・右の皿・のせない石の3組に分ける。
+    # あと1回で区別できるのは最大3こ。1こずつのせればその上限に届く。
+    splits = [(per_pan, 8 - 2 * per_pan) for per_pan in range(1, 5)]
+    return [[per_pan, off_scale] for per_pan, off_scale in splits if max(per_pan, off_scale) <= 3]
+
+
+def logic_005():
+    # はし番号の順。どの2本がこわれていると、2つの手がかりが両方成り立つか。
+    bridges = dict(enumerate(["アイ", "アウ", "イウ", "イエ", "ウエ", "エオ"], 1))
+
+    def reachable(start, broken):
+        reached = {start}
+        pending = [start]
+        while pending:
+            island = pending.pop()
+            for number, (a, b) in bridges.items():
+                if number in broken or island not in (a, b):
+                    continue
+                neighbor = b if island == a else a
+                if neighbor not in reached:
+                    reached.add(neighbor)
+                    pending.append(neighbor)
+        return reached
+
+    options = [(1, 5), (4, 5), (1, 2), (1, 6)]
+    return [[options.index(broken) + 1] for broken in combinations(bridges, 2)
+            if "エ" not in reachable("ア", broken) and "オ" in reachable("イ", broken)]
+
+
+def logic_006():
+    # だんごとに花のあるマスを並べる。列はすべて異なり、ななめには接しない。
+    blocked = {(2, 5), (4, 3)}
+    answers = []
+    for columns in permutations(range(1, 6)):
+        if columns[0] != 2 or any(cell in blocked for cell in enumerate(columns, 1)):
+            continue
+        if all(abs(a - b) > 1 for a, b in zip(columns, columns[1:])):
+            answers.append([columns[1], columns[3]])
+    return answers
+
+
 # ---- 空間把握の検算 ----
 
 def roll_net(cells):
@@ -317,8 +360,56 @@ def spatial_003():
     return [[shape(["ア", "ウ", "カ"]), shape(["オ", "カ", "ウ", "エ"])]]
 
 
+def spatial_004():
+    # 真上の図を、おくから手前へ。各列の最大が前、各行の最大が右から見た高さ。
+    front = (2, 2, 3)
+    right = (1, 3, 2)
+    layouts = []
+    for a, b, c, d, e, f in product(range(1, max(front) + 1), repeat=6):
+        rows = ((a, 0, b), (0, c, d), (e, f, 0))
+        if tuple(map(max, zip(*rows))) != front or tuple(map(max, reversed(rows))) != right:
+            continue
+        layouts.append((a, b, c, d, e, f))
+
+    if not layouts:
+        return []
+    fewest = min(map(sum, layouts))
+    return [[i, fewest] for i, heights in enumerate(zip(*layouts), 1) if len(set(heights)) > 1]
+
+
+def spatial_005():
+    # 一辺100、左上を原点とする。おった紙の右端 x=50 はおり目。
+    # 半円の中心はおり目の上なので、左右で重なった中心は1つの丸い穴を表す。
+    punch, edge_cut = (23, 23), (50, 38)
+    folded = {punch, edge_cut}
+    opened_down = folded | {(x, 100 - y) for x, y in folded}
+    opened_right = opened_down | {(100 - x, y) for x, y in opened_down}
+    corner_holes = {(x, y) for x in (23, 77) for y in (23, 77)}
+    options = [
+        corner_holes | {(x, y) for x in (0, 100) for y in (38, 62)},
+        corner_holes | {(50, y) for y in (38, 62)},
+        corner_holes | {(x, 50) for x in (38, 62)},
+        corner_holes | {(x, y) for x in (42, 58) for y in (38, 62)},
+    ]
+    return [[i, len(opened_right)] for i, option in enumerate(options, 1) if option == opened_right]
+
+
+def spatial_006():
+    # マスの位置と、やじるし・ななめ線の向きを表す横方向の成分を反転する。
+    # (列, 段, 形, 横向き)。ななめ線は下のはしから上のはしへの向き。
+    original = {(0, 0, "やじるし", 1), (1, 1, "線", 1), (2, 1, "まる", 0)}
+    mirrored = {(2 - col, row, shape, -dx) for col, row, shape, dx in original}
+    options = [
+        {(2, 0, "やじるし", 1), (1, 1, "線", 1), (0, 1, "まる", 0)},
+        {(0, 0, "やじるし", -1), (1, 1, "線", -1), (2, 1, "まる", 0)},
+        {(2, 0, "やじるし", -1), (1, 1, "線", -1), (0, 1, "まる", 0)},
+        {(2, 1, "やじるし", -1), (1, 0, "線", 1), (0, 0, "まる", 0)},
+    ]
+    return [[i] for i, option in enumerate(options, 1) if option == mirrored]
+
+
 SOLVERS = {f"math/{i:03d}": globals()[f"math_{i:03d}"] for i in range(1, 21)}
-SOLVERS |= {f"{s}/{i:03d}": globals()[f"{s}_{i:03d}"] for s in ("logic", "spatial") for i in range(1, 4)}
+SOLVERS |= {f"{s}/{i:03d}": globals()[f"{s}_{i:03d}"] for s in ("logic", "spatial") for i in range(1, 7)}
 
 
 def texts(p, for_child=True):

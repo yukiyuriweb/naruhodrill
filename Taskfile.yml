@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  build:
+    desc: 問題を検算して index.json を作成
+    cmds:
+      - uv run site/tools/build.py {{.CLI_ARGS}}
+
+  serve:
+    desc: ローカル確認用サーバーを起動
+    cmds:
+      - uv run site/tools/serve.py {{.CLI_ARGS}}

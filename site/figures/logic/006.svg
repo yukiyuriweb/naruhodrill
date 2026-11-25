@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 270" width="380" height="270">
+  <g font-family="sans-serif" fill="#25364a" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="82" y="35" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="127" y="35" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <path d="M149 56 v15 m0 -3 q6 -8 11 -6 q-2 7 -11 7" fill="none" stroke="#367057" stroke-width="2"/>
+    <circle cx="149" cy="50" r="9" fill="#da765e" stroke="none" stroke-width="2"/>
+    <circle cx="149" cy="50" r="3" fill="#ffe5a4" stroke="none" stroke-width="2"/>
+    <rect x="172" y="35" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="217" y="35" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="262" y="35" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="82" y="80" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="127" y="80" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="172" y="80" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="217" y="80" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="262" y="80" width="45" height="45" fill="#edf1f4" stroke="#73879a" stroke-width="1.5"/>
+    <text x="284.5" y="110" font-size="22" text-anchor="middle">×</text>
+    <rect x="82" y="125" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="127" y="125" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="172" y="125" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="217" y="125" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="262" y="125" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="82" y="170" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="127" y="170" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="172" y="170" width="45" height="45" fill="#edf1f4" stroke="#73879a" stroke-width="1.5"/>
+    <text x="194.5" y="200" font-size="22" text-anchor="middle">×</text>
+    <rect x="217" y="170" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="262" y="170" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="82" y="215" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="127" y="215" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="172" y="215" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="217" y="215" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <rect x="262" y="215" width="45" height="45" fill="#fffefa" stroke="#73879a" stroke-width="1.5"/>
+    <text x="104.5" y="26" font-size="17" text-anchor="middle">1</text>
+    <text x="66" y="65" font-size="17" text-anchor="middle">1</text>
+    <text x="149.5" y="26" font-size="17" text-anchor="middle">2</text>
+    <text x="66" y="110" font-size="17" text-anchor="middle">2</text>
+    <text x="194.5" y="26" font-size="17" text-anchor="middle">3</text>
+    <text x="66" y="155" font-size="17" text-anchor="middle">3</text>
+    <text x="239.5" y="26" font-size="17" text-anchor="middle">4</text>
+    <text x="66" y="200" font-size="17" text-anchor="middle">4</text>
+    <text x="284.5" y="26" font-size="17" text-anchor="middle">5</text>
+    <text x="66" y="245" font-size="17" text-anchor="middle">5</text>
+  </g>
+</svg>

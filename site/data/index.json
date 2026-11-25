@@ -276,6 +276,27 @@
    "lv": "Lv.3",
    "area": "手じゅんを 考える（いちばん 少ない 回数）",
    "status": "published"
+  },
+  {
+   "id": "004",
+   "title": "8この 石と 2回の はかり",
+   "lv": "Lv.3",
+   "area": "はからない 石も 手がかりに する",
+   "status": "published"
+  },
+  {
+   "id": "005",
+   "title": "わたれない 2本の はし",
+   "lv": "Lv.3",
+   "area": "いくつかの はしを わたって 行けるか",
+   "status": "published"
+  },
+  {
+   "id": "006",
+   "title": "花だんに 5本の 花",
+   "lv": "Lv.3",
+   "area": "マスの きまりを 使って しぼる",
+   "status": "published"
   }
  ],
  "spatial": [
@@ -298,6 +319,27 @@
    "title": "さいころの 形を 切ったら",
    "lv": "Lv.3",
    "area": "切り口の 形（立体を 切る）",
+   "status": "published"
+  },
+  {
+   "id": "004",
+   "title": "高さが かわる 場所は どこ？",
+   "lv": "Lv.3",
+   "area": "真上と 2つの 横から 見た 形を 合わせる",
+   "status": "published"
+  },
+  {
+   "id": "005",
+   "title": "おった 紙の あなは いくつ？",
+   "lv": "Lv.3",
+   "area": "おり目から あなの でき方を 考える",
+   "status": "published"
+  },
+  {
+   "id": "006",
+   "title": "かがみの 中の やじるし",
+   "lv": "Lv.2〜3",
+   "area": "ならび方と 一つずつの 向きを うら返す",
    "status": "published"
   }
  ]
